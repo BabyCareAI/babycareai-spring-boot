@@ -1,6 +1,11 @@
 package babycareai.backend.controller;
 
 import babycareai.backend.service.ImageUploadService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +20,12 @@ public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
 
+    @Tag(name = "이미지 업로드", description = "이미지를 업로드하는 API")
+    @Operation(summary = "이미지 업로드", description = "이미지를 업로드합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이미지 업로드 성공", content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = {@Content(mediaType = "application/json")})
+    })
     @PostMapping("/upload")
     public String upload(MultipartFile image, Model model) throws IOException {
         /* 이미지 업로드 로직 */
