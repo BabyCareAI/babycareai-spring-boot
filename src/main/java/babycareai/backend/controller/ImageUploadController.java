@@ -27,6 +27,7 @@ public class ImageUploadController {
     @Operation(summary = "이미지 업로드", description = "이미지를 업로드합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 업로드 성공"),
+            @ApiResponse(responseCode = "413", description = "이미지 크기 초과"),
             @ApiResponse(responseCode = "500", description = "이미지 업로드 실패")
     })
     @CrossOrigin(origins = "http://localhost:3000")
