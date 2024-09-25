@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # babycareai-spring-boot
 
 아래 정보를 기준으로 개발중입니다.
@@ -22,6 +21,4 @@
 ### 시스템
 
 ![image](https://github.com/user-attachments/assets/fde99e4b-b545-49bf-b94e-3ccdb31a1246)
-=======
-# babycareai-spring-boot
->>>>>>> bacf7c581d4b80fbba9b1d7ba385aab8aa449e3c
+
