@@ -12,13 +12,12 @@
 
 ### ERD
 
-![image](https://github.com/user-attachments/assets/0887ad39-27be-46f4-bd90-2d9b9403cd0a)
+![image](https://github.com/user-attachments/assets/4c6af2e9-b3b7-4d2e-a28d-a9e019523533)
 
 ### 유스케이스
 
-![image](https://github.com/user-attachments/assets/6641d968-e7b1-4e6b-bbdc-0ff04f55373c)
+![image](https://github.com/user-attachments/assets/15ae1eb7-5cd6-49de-aced-defdc6cf0dd1)
 
 ### 시스템
 
-![image](https://github.com/user-attachments/assets/fde99e4b-b545-49bf-b94e-3ccdb31a1246)
-
+![image](https://github.com/user-attachments/assets/9f0f247f-359a-49f9-b8f9-15c26019ba31)
