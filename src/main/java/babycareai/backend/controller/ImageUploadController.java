@@ -34,7 +34,7 @@ public class ImageUploadController {
             @ApiResponse(responseCode = "503", description = "서비스 불가 상태")
     })
     @CrossOrigin(origins = "${cors.allowedOrigins}")
-    @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/api/upload", consumes = {"multipart/form-data"})
     public ResponseEntity<?> upload(@RequestParam("image") MultipartFile image) {
         try {
             String imageUrl = imageUploadService.upload(image);
