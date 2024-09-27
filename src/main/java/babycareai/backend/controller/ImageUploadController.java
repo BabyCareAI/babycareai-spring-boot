@@ -24,26 +24,30 @@ public class ImageUploadController {
     private final ImageUploadService imageUploadService;
 
     @Tag(name = "이미지 업로드(image)", description = "이미지를 업로드하는 API")
-    @Operation(summary = "이미지 업로드", description = "이미지를 업로드합니다.")
+    @Operation(summary = "이미지 업로드", description = "사용자가 이미지를 서버에 업로드하고, 이미지 URL을 받습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 업로드 성공"),
+            @ApiResponse(responseCode = "400", description = "부적합한 파일 형식"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 접근"),
             @ApiResponse(responseCode = "413", description = "이미지 크기 초과"),
-            @ApiResponse(responseCode = "500", description = "이미지 업로드 실패")
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류"),
+            @ApiResponse(responseCode = "503", description = "서비스 불가 상태")
     })
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "${cors.allowedOrigins}")
     @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
-    public ResponseEntity<?> upload(@RequestParam("image") MultipartFile image) { // max-file-size=10MB로 설정시켜놓음.
+    public ResponseEntity<?> upload(@RequestParam("image") MultipartFile image) {
         try {
-            // 이미지 업로드 서비스 호출
             String imageUrl = imageUploadService.upload(image);
-
-            // 성공적으로 업로드되었을 때의 응답
             return ResponseEntity.ok().body(Map.of("imageUrl", imageUrl));
-
         } catch (IOException e) {
-            // 오류 응답
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("errorMessage", "이미지 업로드 중 오류가 발생했습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errorMessage", "부적합한 파일 형식입니다."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Map.of("errorMessage", "서비스를 이용할 수 없습니다."));
         }
     }
 }
