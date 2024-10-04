@@ -36,6 +36,14 @@ dependencies {
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
     implementation 'com.amazonaws:aws-java-sdk-s3'
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0"
+
+    implementation 'com.amazonaws:aws-java-sdk-sagemakerruntime'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0"
+
+    // AWS SDK v2 dependencies
+    implementation platform('software.amazon.awssdk:bom:2.20.77')
+    implementation 'software.amazon.awssdk:sagemakerruntime'
 }
 
 tasks.named('test') {
