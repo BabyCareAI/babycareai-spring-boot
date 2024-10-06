@@ -29,7 +29,10 @@ public class ImageUploadAndPredictController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "예측 성공"),
             @ApiResponse(responseCode = "400", description = "부적합한 파일 형식"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 접근"),
+            @ApiResponse(responseCode = "413", description = "이미지 크기 초과"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류"),
+            @ApiResponse(responseCode = "503", description = "서비스 불가 상태")
     })
     @CrossOrigin(origins = "${cors.allowedOrigins}")
     @PostMapping(value = "/api/upload-and-predict", consumes = {"multipart/form-data"})
