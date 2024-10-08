@@ -23,8 +23,8 @@ public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
 
-    @Tag(name = "이미지 업로드(image)", description = "이미지를 업로드하는 API")
-    @Operation(summary = "이미지 업로드", description = "사용자가 이미지를 서버에 업로드하고, 이미지 URL을 받습니다.")
+    @Tag(name = "이미지 업로드(테스트용)", description = "이미지를 업로드하는 API")
+    @Operation(summary = "이미지 업로드(테스트용)", description = "사용자가 이미지를 서버에 업로드하고, 이미지 URL을 받습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 업로드 성공"),
             @ApiResponse(responseCode = "400", description = "부적합한 파일 형식"),
