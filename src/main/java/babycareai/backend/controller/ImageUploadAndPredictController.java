@@ -24,8 +24,8 @@ public class ImageUploadAndPredictController {
 
     private final ImageUploadAndPredictService imageUploadAndPredictService;
 
-    @Tag(name = "이미지 업로드 및 예측", description = "이미지를 업로드하고 SageMaker를 통해 예측 결과를 반환하는 API")
-    @Operation(summary = "이미지 업로드 및 예측", description = "이미지를 업로드하고, 해당 이미지에 대한 SageMaker 예측 결과를 반환합니다.")
+    @Tag(name = "질환명 예측(테스트용)", description = "이미지 업로드 -> 질환명 예측")
+    @Operation(summary = "질환명 예측(테스트용)", description = "이미지를 업로드하면, 해당 이미지에 대한 SageMaker에 배포한 모델이 질환명을 예측하고 결과를 반환합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "예측 성공"),
             @ApiResponse(responseCode = "400", description = "부적합한 파일 형식"),
@@ -35,7 +35,7 @@ public class ImageUploadAndPredictController {
             @ApiResponse(responseCode = "503", description = "서비스 불가 상태")
     })
     @CrossOrigin(origins = "${cors.allowedOrigins}")
-    @PostMapping(value = "/api/upload-and-predict", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/api/predict", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadAndPredict(@RequestParam("image") MultipartFile image) {
         try {
             JsonNode predictionResult = imageUploadAndPredictService.uploadAndPredict(image);

@@ -81,6 +81,22 @@ public class ImageUploadAndPredictService {
 
         // SageMaker 모델의 예측 결과 반환
         return response.body().asUtf8String();
+
+        /*
+        * 예측 결과 예시
+        * {
+              "predictionResult": [
+                "Basal cell carcinoma",
+                "Benign keratosis",
+                "Melanocytic nevus"
+              ],
+              "probabilities": [
+                0.5988141894340515,
+                0.1134319081902504,
+                0.07914970070123672
+              ]
+            }
+        * */
     }
 
     private String changeFileName(String originalFileName) {
