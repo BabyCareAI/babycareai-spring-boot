@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.sagemakerruntime.SageMakerRuntimeClient;
@@ -15,7 +17,8 @@ import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointRequ
 import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointResponse;
 
 import java.io.IOException;
-
+import java.util.HashMap;
+import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class PredictService {
@@ -23,6 +26,7 @@ public class PredictService {
     private final AmazonS3Client s3Client;
     private final SageMakerRuntimeClient sageMakerRuntimeClient;
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${s3.bucket}")
     private String bucket;
@@ -47,6 +51,9 @@ public class PredictService {
         ObjectNode responseNode = objectMapper.createObjectNode();
         responseNode.set("predictionResult", predictedClasses);
         responseNode.set("probabilities", probabilities);
+
+        // 예측 결과를 Redis Stream에 게시
+        publishPredictionResultToRedisStream(imageUrl, responseNode);
 
         return responseNode;
     }
@@ -86,5 +93,23 @@ public class PredictService {
         // SageMaker 모델의 예측 결과 반환
         return response.body().asUtf8String();
 
+    }
+
+    private void publishPredictionResultToRedisStream(String imageUrl, JsonNode predictionResult) {
+        Map<String, String> message = new HashMap<>();
+        message.put("imageUrl", imageUrl);
+        message.put("predictionResult", predictionResult.toString());
+
+        System.out.println("Redis Stream에 예측 결과 게시: " + message);
+
+        RecordId recordId = redisTemplate.opsForStream()
+                .add("imagePredictionStream", message);
+
+        if (recordId == null) {
+            System.out.println("Redis Stream에 예측 결과를 게시하지 못했습니다.");
+            // 예외 처리 로직 추가
+        } else {
+            System.out.println("Redis Stream에 게시된 예측 결과: " + recordId);
+        }
     }
 }
