@@ -33,7 +33,7 @@ public class SkinDiseasePredictionService {
     @Value("${sagemaker.endpoint.name}")
     private String sagemakerEndpointName;
 
-    public void predict(String imageUrl, String requestId) throws IOException {
+    public void predict(String imageUrl, String diagnosisId) throws IOException {
 
         // S3에 저장된 이미지 다운로드
         S3Object image = downloadImage(imageUrl);
@@ -51,12 +51,12 @@ public class SkinDiseasePredictionService {
         responseNode.set("predictionResult", predictedClasses);
         responseNode.set("probabilities", probabilities);
 
-        log.info("requestId: {}", requestId);
+        log.info("diagnosisId: {}", diagnosisId);
         log.info("imageUrl: {}", imageUrl);
         log.info("Prediction result: {}", responseNode);
 
-        // requestId, imageUrl, predictionResult를 Redis에 저장
-        savePredictionToRedis(requestId, imageUrl, responseNode.toString());
+        // diagnosisId, imageUrl, predictionResult를 Redis에 저장
+        savePredictionToRedis(diagnosisId, imageUrl, responseNode.toString());
     }
 
     private S3Object downloadImage(String imageUrl) throws IOException {
@@ -95,8 +95,8 @@ public class SkinDiseasePredictionService {
 
     }
 
-    private void savePredictionToRedis(String requestId, String imageUrl, String predictionResult) {
-        String redisKey = "prediction:" + requestId;
+    private void savePredictionToRedis(String diagnosisId, String imageUrl, String predictionResult) {
+        String redisKey = "prediction:" + diagnosisId;
 
         String value = String.format("{\"imageUrl\":\"%s\",\"predictionResult\":%s}", imageUrl, predictionResult);
 
