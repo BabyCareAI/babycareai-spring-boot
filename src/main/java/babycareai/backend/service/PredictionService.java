@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointResp
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PredictionService {
@@ -33,7 +35,7 @@ public class PredictionService {
     @Value("${sagemaker.endpoint.name}")
     private String sagemakerEndpointName;
 
-    public JsonNode predict(String imageUrl) throws IOException {
+    public void predict(String imageUrl) throws IOException {
 
         // S3에 저장된 이미지 다운로드
         S3Object image = downloadImage(imageUrl);
@@ -54,7 +56,8 @@ public class PredictionService {
         // 예측 결과를 Redis Stream에 게시
         publishPredictionResultToRedisStream(imageUrl, responseNode);
 
-        return responseNode;
+        log.info("imageUrl: {}", imageUrl);
+        log.info("Prediction result: {}", responseNode);
     }
 
     private S3Object downloadImage(String imageUrl) throws IOException {
@@ -97,7 +100,6 @@ public class PredictionService {
         Map<String, String> message = new HashMap<>();
         message.put("imageUrl", imageUrl);
         message.put("predictionResult", predictionResult.toString());
-
         redisStreamHelper.publishToStream("diagnosis:prediction:result:stream", message);
     }
 }
