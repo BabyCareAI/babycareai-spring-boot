@@ -1,6 +1,5 @@
 package babycareai.backend.service;
 
-import babycareai.backend.util.RedisStreamHelper;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.sagemakerruntime.SageMakerRuntimeClient;
@@ -17,17 +17,15 @@ import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointRequ
 import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointResponse;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PredictionService {
+public class SkinDiseasePredictionService {
 
     private final AmazonS3Client s3Client;
     private final SageMakerRuntimeClient sageMakerRuntimeClient;
     private final ObjectMapper objectMapper;
-    private final RedisStreamHelper redisStreamHelper;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${s3.bucket}")
     private String bucket;
@@ -35,7 +33,7 @@ public class PredictionService {
     @Value("${sagemaker.endpoint.name}")
     private String sagemakerEndpointName;
 
-    public void predict(String imageUrl) throws IOException {
+    public void predict(String imageUrl, String diagnosisId) throws IOException {
 
         // S3에 저장된 이미지 다운로드
         S3Object image = downloadImage(imageUrl);
@@ -53,11 +51,12 @@ public class PredictionService {
         responseNode.set("predictionResult", predictedClasses);
         responseNode.set("probabilities", probabilities);
 
-        // 예측 결과를 Redis Stream에 게시
-        publishPredictionResultToRedisStream(imageUrl, responseNode);
-
+        log.info("diagnosisId: {}", diagnosisId);
         log.info("imageUrl: {}", imageUrl);
         log.info("Prediction result: {}", responseNode);
+
+        // diagnosisId, imageUrl, predictionResult를 Redis에 저장
+        savePredictionToRedis(diagnosisId, imageUrl, responseNode.toString());
     }
 
     private S3Object downloadImage(String imageUrl) throws IOException {
@@ -96,10 +95,14 @@ public class PredictionService {
 
     }
 
-    private void publishPredictionResultToRedisStream(String imageUrl, JsonNode predictionResult) {
-        Map<String, String> message = new HashMap<>();
-        message.put("imageUrl", imageUrl);
-        message.put("predictionResult", predictionResult.toString());
-        redisStreamHelper.publishToStream("diagnosis:prediction:result:stream", message);
+    private void savePredictionToRedis(String diagnosisId, String imageUrl, String predictionResult) {
+        String redisKey = "prediction:" + diagnosisId;
+
+        String value = String.format("{\"imageUrl\":\"%s\",\"predictionResult\":%s}", imageUrl, predictionResult);
+
+        // Redis에 예측 데이터 저장
+        redisTemplate.opsForValue().set(redisKey, value);
+
+        log.info("예측 결과 Redis에 저장 완료. Key: {}, Value: {}", redisKey, value);
     }
 }
