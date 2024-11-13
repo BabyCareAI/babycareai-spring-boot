@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.connection.stream.RecordId;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.sagemakerruntime.SageMakerRuntimeClient;
@@ -102,8 +102,13 @@ public class PredictService {
 
         System.out.println("Redis Stream에 예측 결과 게시: " + message);
 
+        // 스트림 트리밍을 사용하여 스트림의 크기를 제한하고 오래된 메시지를 제거하여 스트림의 크기를 일정하게 유지해주세요.
         RecordId recordId = redisTemplate.opsForStream()
                 .add("diagnosis:prediction:result:stream", message);
+
+        // 스트림 트리밍을 사용하여 스트림의 크기를 제한하고 오래된 메시지를 제거
+        trimStream("diagnosis:prediction:result:stream", 1000); // 예시로 최대 1000개의 메시지를 유지
+
 
         // 소비자 그룹 출력
         System.out.println("소비자 그룹: " + redisTemplate.opsForStream().groups("diagnosis:prediction:result:stream"));
@@ -116,5 +121,15 @@ public class PredictService {
         } else {
             System.out.println("Redis Stream에 게시된 예측 결과: " + recordId);
         }
+    }
+
+    private void trimStream(String streamName, long maxLength) {
+        // 스트림 크기 제한을 위한 XTRIM 명령 실행
+        Map<String, String> params = new HashMap<>();
+        params.put("MAXLEN", String.valueOf(maxLength));
+
+        // XTRIM을 통해 스트림의 길이를 제한하고 오래된 메시지 삭제
+        redisTemplate.opsForStream().trim(streamName, maxLength); // 이 방법으로 MAXLEN을 지정하여 오래된 메시지를 제거
+        System.out.println("Stream을 최대 " + maxLength + "개의 메시지로 트리밍 했습니다.");
     }
 }
