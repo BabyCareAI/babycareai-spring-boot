@@ -1,7 +1,6 @@
 package babycareai.backend.controller;
 
 import babycareai.backend.service.ImageUploadService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,9 +23,8 @@ public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
 
-    @Hidden
-    @Tag(name = "이미지 업로드(테스트용)", description = "이미지 업로드")
-    @Operation(summary = "이미지 업로드(테스트용)", description = "이미지를 업로드하면 s3에 저장하고 해당이미지의 s3URL을 반환합니다.")
+    @Tag(name = "이미지 업로드", description = "이미지를 업로드하면 s3에 저장하고 해당이미지의 s3URL을 반환합니다.")
+    @Operation(summary = "이미지 업로드", description = "이미지를 업로드하면 s3에 저장하고 해당이미지의 s3URL을 반환합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 업로드 성공"),
             @ApiResponse(responseCode = "400", description = "부적합한 파일 형식"),

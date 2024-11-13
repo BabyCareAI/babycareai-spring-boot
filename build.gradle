@@ -44,6 +44,10 @@ dependencies {
     // AWS SDK v2 dependencies
     implementation platform('software.amazon.awssdk:bom:2.20.77')
     implementation 'software.amazon.awssdk:sagemakerruntime'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 tasks.named('test') {
