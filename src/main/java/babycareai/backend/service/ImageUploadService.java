@@ -24,7 +24,7 @@ public class ImageUploadService {
     @Value("${s3.bucket}")
     private String bucket;
 
-    public String upload(MultipartFile image) throws IOException {
+    public void upload(MultipartFile image) throws IOException {
         /* 업로드할 파일의 이름을 변경 */
         String originalFileName = image.getOriginalFilename();
         String fileName = changeFileName(originalFileName);
@@ -42,12 +42,9 @@ public class ImageUploadService {
 
         // 업로드 성공 후 Redis Stream에 게시
         publishImageUrlToRedisStream(imageUrl);
-
-        return imageUrl;
     }
 
     private String changeFileName(String originalFileName) {
-        /* 업로드할 파일의 이름을 변경하는 로직 */
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         return originalFileName + "_" + LocalDateTime.now().format(formatter);
     }

@@ -1,8 +1,8 @@
 package babycareai.backend.config;
 
 import babycareai.backend.service.ImagePredictionListener;
-
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.RedisSystemException;
@@ -17,6 +17,7 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer.Stre
 
 import java.time.Duration;
 
+@Slf4j
 @Configuration
 public class RedisStreamConfig {
 
@@ -35,7 +36,6 @@ public class RedisStreamConfig {
         this.imagePredictionListener = imagePredictionListener;
     }
 
-    // 설명: Redis Stream에 대한 리스너를 시작합니다.
     @PostConstruct
     public void startListener() {
         // Stream and group names
@@ -70,20 +70,16 @@ public class RedisStreamConfig {
         } catch (RedisSystemException e) {
             // 스트림이 존재하지 않으면
             if (e.getRootCause() instanceof io.lettuce.core.RedisBusyException) {
-                System.out.println("소비자 그룹이 이미 존재합니다.");
-                System.out.println("존재하는 소비자 그룹: " + redisTemplate.opsForStream().groups(streamKey));
-                System.out.println("모든 키 출력 : " + redisTemplate.keys("*"));
+                // 로그 출력
+                log.info("소비자 그룹이 이미 존재합니다.");
             } else if (e.getRootCause() instanceof io.lettuce.core.RedisCommandExecutionException) {
-                System.out.println("소비자 그룹이 없으므로 생성합니다.");
                 redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.latest(), groupName);
-                System.out.println("redisTemplate.opsForStream().groups(streamKey): " + redisTemplate.opsForStream().groups(streamKey));
-                System.out.println("redisTemplate.keys(\"*\"): " + redisTemplate.keys("*"));
+                log.info("소비자 그룹을 생성했습니다.");
             } else {
+                log.error("소비자 그룹 생성 중 오류가 발생했습니다.");
                 throw e;
             }
         } catch (Exception e) {
-            // Consumer group might already exist
-            // Handle other exceptions if necessary
         }
     }
 }
