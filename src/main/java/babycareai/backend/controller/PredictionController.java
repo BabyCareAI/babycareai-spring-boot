@@ -1,7 +1,8 @@
 package babycareai.backend.controller;
 
-import babycareai.backend.service.PredictService;
+import babycareai.backend.service.PredictionService;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,10 +20,11 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class PredictController {
+public class PredictionController {
 
-    private final PredictService PredictService;
+    private final PredictionService PredictionService;
 
+    @Hidden
     @Tag(name = "이미지 예측", description = "이미지 url을 입력하면 s3에서 이미지를 다운로드하고 예측 결과를 반환합니다.")
     @Operation(summary = "이미지 예측", description = "이미지 업로드 api를 통해 반환받은 url을 입력하면 질환명을 예측하여 그 결과를 반환합니다. 실제로는 이미지가 업로드되면 Redis Stream에 게시되어 예측 메서드가 백엔드 내부에서 실행되기 때문에 이 api는 사용하지 않습니다.")
     @ApiResponses(value = {
@@ -37,7 +39,7 @@ public class PredictController {
     @PostMapping(value = "/api/predict")
     public ResponseEntity<?> predict(@RequestParam("imageUrl") String imageUrl) {
         try {
-            JsonNode predictionResult = PredictService.predict(imageUrl);
+            JsonNode predictionResult = PredictionService.predict(imageUrl);
             return ResponseEntity.ok().body(Map.of("predictionResult", predictionResult));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ImagePredictionListener implements StreamListener<String, MapRecord<String, String, String>> {
 
-    private final PredictService predictService;
+    private final PredictionService predictionService;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
@@ -26,7 +26,7 @@ public class ImagePredictionListener implements StreamListener<String, MapRecord
         String imageUrl = message.getValue().get("imageUrl");
 
         try {
-            JsonNode predictionResult = predictService.predict(imageUrl);
+            JsonNode predictionResult = predictionService.predict(imageUrl);
             // 예측 결과를 처리합니다(예: Redis 또는 데이터베이스에 저장).
             storePredictionResult(imageUrl, predictionResult);
             System.out.println("Prediction result: " + predictionResult);

@@ -2,6 +2,7 @@ package babycareai.backend.controller;
 
 import babycareai.backend.service.ImageUploadAndPredictAndGenerateService;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,6 +25,7 @@ public class ImageUploadAndPredictAndGenerateController {
 
     private final ImageUploadAndPredictAndGenerateService imageUploadAndPredictAndGenerateService;
 
+    @Hidden
     @Tag(name = "가이드 생성", description = "이미지 업로드 -> 질환명 예측 -> 가이드 생성")
     @Operation(summary = "가이드 생성", description = "이미지를 업로드하면 질환명을 예측하고 그에 맞는 응답을 생성하여 반환하는 API입니다.")
     @ApiResponses(value = {

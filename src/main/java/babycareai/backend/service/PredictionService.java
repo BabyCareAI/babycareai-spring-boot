@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 @Service
 @RequiredArgsConstructor
-public class PredictService {
+public class PredictionService {
 
     private final AmazonS3Client s3Client;
     private final SageMakerRuntimeClient sageMakerRuntimeClient;
