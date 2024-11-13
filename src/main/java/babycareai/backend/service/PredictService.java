@@ -103,7 +103,12 @@ public class PredictService {
         System.out.println("Redis Stream에 예측 결과 게시: " + message);
 
         RecordId recordId = redisTemplate.opsForStream()
-                .add("imagePredictionStream", message);
+                .add("diagnosis:prediction:result:stream", message);
+
+        // 소비자 그룹 출력
+        System.out.println("소비자 그룹: " + redisTemplate.opsForStream().groups("diagnosis:prediction:result:stream"));
+        // 모든 키 출력
+        System.out.println("모든 키 출력 : " + redisTemplate.keys("*"));
 
         if (recordId == null) {
             System.out.println("Redis Stream에 예측 결과를 게시하지 못했습니다.");

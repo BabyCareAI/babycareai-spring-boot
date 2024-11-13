@@ -59,7 +59,7 @@ public class ImageUploadService {
         System.out.println("Publishing message to Redis Stream: " + message);
 
         RecordId recordId = redisTemplate.opsForStream()
-                .add("imageUploadStream", message);
+                .add("diagnosis:image:url:stream", message);
 
         // Redis Stream record 처리에 실패했을 경우 로직 추가
         if (recordId == null) {

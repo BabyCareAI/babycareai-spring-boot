@@ -1,6 +1,7 @@
 package babycareai.backend.config;
 
 import babycareai.backend.service.ImagePredictionListener;
+
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +24,14 @@ public class RedisStreamConfig {
     private String applicationName;
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    private final RedisConnectionFactory redisConnectionFactory;
     private final ImagePredictionListener imagePredictionListener;
 
     public RedisStreamConfig(RedisTemplate<String, String> redisTemplate,
-                             ImagePredictionListener imagePredictionListener) {
+                             RedisConnectionFactory redisConnectionFactory, ImagePredictionListener imagePredictionListener) {
         this.redisTemplate = redisTemplate;
+        this.redisConnectionFactory = redisConnectionFactory;
         this.imagePredictionListener = imagePredictionListener;
     }
 
@@ -35,8 +39,8 @@ public class RedisStreamConfig {
     @PostConstruct
     public void startListener() {
         // Stream and group names
-        String streamKey = "imageUploadStream";
-        String groupName = "myGroup";
+        String streamKey = "diagnosis:image:url:stream";
+        String groupName = "prediction_service_group";
 
         // Create consumer group if it doesn't exist
         createConsumerGroup(streamKey, groupName);
@@ -48,9 +52,8 @@ public class RedisStreamConfig {
                         .build();
 
         // Create the listener container
-        RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
         StreamMessageListenerContainer<String, MapRecord<String, String, String>> container =
-                StreamMessageListenerContainer.create(connectionFactory, options);
+                StreamMessageListenerContainer.create(redisConnectionFactory, options);
 
         // Start listening to the stream
         container.receive(Consumer.from(groupName, applicationName),
@@ -68,11 +71,13 @@ public class RedisStreamConfig {
             // 스트림이 존재하지 않으면
             if (e.getRootCause() instanceof io.lettuce.core.RedisBusyException) {
                 System.out.println("소비자 그룹이 이미 존재합니다.");
-                System.out.println(redisTemplate.opsForStream().groups(streamKey));
+                System.out.println("존재하는 소비자 그룹: " + redisTemplate.opsForStream().groups(streamKey));
+                System.out.println("모든 키 출력 : " + redisTemplate.keys("*"));
             } else if (e.getRootCause() instanceof io.lettuce.core.RedisCommandExecutionException) {
                 System.out.println("소비자 그룹이 없으므로 생성합니다.");
                 redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.latest(), groupName);
-                System.out.println(redisTemplate.opsForStream().groups(streamKey));
+                System.out.println("redisTemplate.opsForStream().groups(streamKey): " + redisTemplate.opsForStream().groups(streamKey));
+                System.out.println("redisTemplate.keys(\"*\"): " + redisTemplate.keys("*"));
             } else {
                 throw e;
             }
