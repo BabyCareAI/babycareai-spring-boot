@@ -3,9 +3,8 @@ package babycareai.backend.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,22 +40,11 @@ public class SkinDiseasePredictionService {
         // 업로드된 이미지에 대한 예측 요청
         String predictionJson = invokeSageMakerEndpoint(image.getObjectContent());
 
-        // JSON 문자열을 파싱하여 새로운 구조로 반환
-        JsonNode predictionNode = objectMapper.readTree(predictionJson);
-        JsonNode predictedClasses = predictionNode.get("predicted_classes");
-        JsonNode probabilities = predictionNode.get("probabilities");
+        // 예측 JSON을 배열로 파싱
+        ArrayNode predictionArray = (ArrayNode) objectMapper.readTree(predictionJson);
 
-        // 새로운 JSON 형태로 결과 작성
-        ObjectNode responseNode = objectMapper.createObjectNode();
-        responseNode.set("predictionResult", predictedClasses);
-        responseNode.set("probabilities", probabilities);
-
-        log.info("diagnosisId: {}", diagnosisId);
-        log.info("imageUrl: {}", imageUrl);
-        log.info("Prediction result: {}", responseNode);
-
-        // diagnosisId, imageUrl, predictionResult를 Redis에 저장
-        savePredictionToRedis(diagnosisId, imageUrl, responseNode.toString());
+        // diagnosisId, imageUrl, predictionResult Redis에 저장
+        savePredictionToRedis(diagnosisId, imageUrl, predictionArray.toString());
     }
 
     private S3Object downloadImage(String imageUrl) throws IOException {
