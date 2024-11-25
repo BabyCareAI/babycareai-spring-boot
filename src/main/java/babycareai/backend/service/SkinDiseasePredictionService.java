@@ -16,6 +16,8 @@ import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointRequ
 import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointResponse;
 
 import java.io.IOException;
+import java.time.Duration;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -89,7 +91,7 @@ public class SkinDiseasePredictionService {
         String value = String.format("{\"imageUrl\":\"%s\",\"predictionResult\":%s}", imageUrl, predictionResult);
 
         // Redis에 예측 데이터 저장
-        redisTemplate.opsForValue().set(redisKey, value);
+        redisTemplate.opsForValue().set(redisKey, value, Duration.ofMinutes(30));
 
         log.info("예측 결과 Redis에 저장 완료. Key: {}, Value: {}", redisKey, value);
     }
