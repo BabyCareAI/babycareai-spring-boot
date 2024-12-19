@@ -1,16 +1,24 @@
 # babycareai-spring-boot
 
-아래 정보를 기준으로 개발중입니다.
+https://baby-care-ai-app.vercel.app
 
-### 기능
-- 이미지 업로드
-- 이미지 분석 요청
-- 가이드 요청
-- 추가 정보 입력 (병변 위치, 발열 여부, 가려움, 염증 등) (후순위)
-- 인증/인가 (후순위)
-- 이미지 메타데이터 저장 (사용자ID, 업로드된 이미지의 S3 URL, 이미지 업로드 시간) (선택)
+모찌케어 서비스는 ~~~
 
+# 기능 
+> ### 피부질환분석 (MVP)
+> - 이미지 업로드 
+> - 피부질환 예측 
+> - 추가 정보 입력 (발열 여부, 가려움 등) 
+> - 최종 진단 및 가이드 생성 
 
-### 시스템
+https://github.com/user-attachments/assets/09b2692a-c152-4230-9bdc-8dd68905ebef
 
+# 시스템 아키텍처
 ![image](https://github.com/user-attachments/assets/326d5366-600b-4e24-a440-593697053262)
+
+> [!NOTE]
+> # api명세서 (Spring Boot)
+> ![screencapture-cautious-kale-62b-notion-site-api-1c4b9a739f36433d89e76ec05c27853a-2024-12-19-22_55_12](https://github.com/user-attachments/assets/1a1a10f6-8ec0-4f37-8c4a-02e83a822431)
+> 
+> ## Swagger
+> ![screencapture-api-babycareai-net-swagger-ui-index-html-2024-12-19-22_35_32](https://github.com/user-attachments/assets/047c1c55-ae56-481b-963f-727df2fa403b)
