@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +21,9 @@ public class SymptomController {
 
     private final SymptomsService symptomsService;
 
+//    @Value("${cors.allowedOrigins}")
+//    private String allowedOrigins;
+
     @Tag(name = "증상 입력", description = "진단 ID와 증상 데이터 입력 -> 저장.")
     @Operation(summary = "증상 입력", description = "진단 ID와 증상 데이터를 받아 Redis에 저장합니다.")
     @ApiResponses(value = {
@@ -29,7 +31,7 @@ public class SymptomController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @CrossOrigin(origins = "${cors.allowedOrigins}")
+//    @CrossOrigin(origins = {"https://api.babycareai.net,https://ionic-test-peach.vercel.app", "https://baby-care-ai-app.vercel.app", "http://localhost:8100", "http://localhost:5173"})
     @PostMapping("/api/diagnosis/symptom")
     public ResponseEntity<Void> submitSymptom(@RequestBody SymptomsRequest symptomsRequest) {
         String diagnosisId = symptomsRequest.getDiagnosisId();
