@@ -1,6 +1,6 @@
-package babycareai.backend.service;
+package babycareai.backend.domain.diagnosis.service;
 
-import babycareai.backend.enums.SymptomType;
+import babycareai.backend.domain.diagnosis.entity.SymptomType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

@@ -1,4 +1,4 @@
-package babycareai.backend.dto;
+package babycareai.backend.domain.diagnosis.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
