@@ -1,8 +1,8 @@
 package babycareai.backend.controller;
 
-import babycareai.backend.dto.SymptomsRequest;
-import babycareai.backend.enums.SymptomType;
-import babycareai.backend.service.SymptomsService;
+import babycareai.backend.domain.diagnosis.dto.SymptomsRequest;
+import babycareai.backend.domain.diagnosis.entity.SymptomType;
+import babycareai.backend.domain.diagnosis.service.SymptomsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

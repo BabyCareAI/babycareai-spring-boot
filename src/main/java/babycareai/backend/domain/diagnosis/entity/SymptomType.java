@@ -1,4 +1,4 @@
-package babycareai.backend.enums;
+package babycareai.backend.domain.diagnosis.entity;
 
 public enum SymptomType {
     FEVER, // 열

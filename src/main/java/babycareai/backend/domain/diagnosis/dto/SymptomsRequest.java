@@ -1,6 +1,6 @@
-package babycareai.backend.dto;
+package babycareai.backend.domain.diagnosis.dto;
 
-import babycareai.backend.enums.SymptomType;
+import babycareai.backend.domain.diagnosis.entity.SymptomType;
 import lombok.Getter;
 import lombok.Setter;
 

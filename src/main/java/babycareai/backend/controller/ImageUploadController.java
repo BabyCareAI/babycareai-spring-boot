@@ -1,8 +1,8 @@
 package babycareai.backend.controller;
 
-import babycareai.backend.dto.DiagnosisResponse;
-import babycareai.backend.service.ImageUploadService;
-import babycareai.backend.service.SkinDiseasePredictionService;
+import babycareai.backend.domain.diagnosis.dto.DiagnosisResponse;
+import babycareai.backend.domain.diagnosis.service.ImageUploadService;
+import babycareai.backend.domain.diagnosis.service.SkinDiseasePredictionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
