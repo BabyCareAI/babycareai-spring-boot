@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SymptomsService {
+public class SymptomInputService {
 
     private final RedisTemplate<String, String> redisTemplate;
     public void saveSymptomsToRedis(String diagnosisId, List<SymptomType> symptoms) {
