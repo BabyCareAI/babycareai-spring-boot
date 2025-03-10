@@ -20,8 +20,15 @@ public class SkinDiseasePredictionController {
 
     private final SkinDiseasePredictionService skinDiseasePredictionService;
 
-    @Tag(name = "피부 질환 예측(배포한 예측 모델)", description = "진단 ID, 이미지 URL 입력 -> 피부 질환 예측 -> 결과 저장")
-    @Operation(summary = "피부 질환 예측(배포한 예측 모델)", description = "진단 ID를 받으면 배포한 예측 모델이 피부 질환을 예측 후 결과를 Redis에 저장합니다.")
+    @Tag(name = "진단")
+    @Operation(
+            summary = "피부 질환 예측(배포한 예측 모델)",
+            description = "진단 ID를 받으면 배포한 예측 모델이 피부 질환을 예측 후 결과를 인메모리 데이터베이스에 저장합니다.\n\n" +
+                    "순서:\n" +
+                    "  1. 클라이언트: 진단 ID 입력\n" +
+                    "  2. 서버: 피부 질환 예측 후 결과 저장\n" +
+                    "  3. 서버: 상태 코드 200을 반환\n"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -33,5 +40,4 @@ public class SkinDiseasePredictionController {
         skinDiseasePredictionService.predictSkinDisease(diagnosisId);
         return ResponseEntity.ok().build();
     }
-
 }

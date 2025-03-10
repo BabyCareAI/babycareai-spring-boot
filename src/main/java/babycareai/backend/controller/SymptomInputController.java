@@ -21,8 +21,15 @@ public class SymptomInputController {
 
     private final SymptomInputService symptomInputService;
 
-    @Tag(name = "증상 입력", description = "진단 ID와 증상 데이터 입력 -> 저장.")
-    @Operation(summary = "증상 입력", description = "진단 ID와 증상 데이터를 받아 Redis에 저장합니다.")
+    @Tag(name = "진단")
+    @Operation(
+            summary = "증상 입력",
+            description = "진단 ID와 증상(리스트)을 받아 인메모리 데이터베이스에 저장합니다.\n\n" +
+                    "순서:\n" +
+                    "  1. 클라이언트: 진단 ID, 증상 입력(리스트)\n" +
+                    "  2. 서버: 증상 저장\n" +
+                    "  3. 서버: 상태 코드 200을 반환\n"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),

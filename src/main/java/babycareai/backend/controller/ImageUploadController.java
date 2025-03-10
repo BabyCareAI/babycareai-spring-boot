@@ -22,8 +22,16 @@ public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
 
-    @Tag(name = "이미지 업로드", description = "이미지 업로드 -> s3에 저장 -> 진단 ID, imageUrl 반환")
-    @Operation(summary = "이미지 업로드", description = "이미지 업로드하면 s3에 저장하고 진단 ID와 imageUrl을 반환합니다.")
+//    @Tag(name = "이미지 업로드", description = "이미지 업로드 -> s3에 저장 -> 진단 ID, imageUrl 반환")
+    @Tag(name = "진단")
+    @Operation(
+            summary = "이미지 업로드",
+            description = "이미지 업로드하면 s3에 저장하고 진단 ID를 반환합니다.\n\n" +
+                    "순서:\n" +
+                    "  1. 클라이언트: 이미지 업로드\n" +
+                    "  2. 서버: 이미지 S3에 저장\n" +
+                    "  3. 서버: 진단 ID 반환\n"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
