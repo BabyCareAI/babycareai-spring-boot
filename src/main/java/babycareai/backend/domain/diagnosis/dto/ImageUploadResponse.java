@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DiagnosisResponse {
+public class ImageUploadResponse {
     private String diagnosisId;
 }
