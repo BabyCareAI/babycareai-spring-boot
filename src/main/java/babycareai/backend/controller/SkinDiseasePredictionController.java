@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,7 @@ public class SkinDiseasePredictionController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PostMapping("/api/diagnosis/skin-disease-model-pedicition")
-    public ResponseEntity<Void> predictSkinDisease(@RequestBody ImageUploadResponse imageUploadResponse) throws IOException {
+    public ResponseEntity<Void> predictSkinDisease(@Valid @RequestBody ImageUploadResponse imageUploadResponse) throws IOException {
         String diagnosisId = imageUploadResponse.getDiagnosisId();
         skinDiseasePredictionService.predictSkinDisease(diagnosisId);
         return ResponseEntity.ok().build();

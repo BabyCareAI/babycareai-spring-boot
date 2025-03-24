@@ -22,7 +22,6 @@ public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
 
-//    @Tag(name = "이미지 업로드", description = "이미지 업로드 -> s3에 저장 -> 진단 ID, imageUrl 반환")
     @Tag(name = "진단")
     @Operation(
             summary = "이미지 업로드",

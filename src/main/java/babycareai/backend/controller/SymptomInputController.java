@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +37,7 @@ public class SymptomInputController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PostMapping("/api/diagnosis/symptom")
-    public ResponseEntity<Void> submitSymptom(@RequestBody SymptomsRequest symptomsRequest) {
+    public ResponseEntity<Void> submitSymptom(@Valid @RequestBody SymptomsRequest symptomsRequest) {
         String diagnosisId = symptomsRequest.getDiagnosisId();
         List<SymptomType> symptomsData = symptomsRequest.getSymptoms();
         symptomInputService.saveSymptomsToRedis(diagnosisId, symptomsData);
