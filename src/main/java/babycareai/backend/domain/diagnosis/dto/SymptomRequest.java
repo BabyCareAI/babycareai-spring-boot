@@ -9,14 +9,14 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class SymptomsRequest {
+public class SymptomRequest {
 
     @NotBlank(message = "진단 ID는 필수 값입니다.")
     private String diagnosisId;
 
     private List<SymptomType> symptoms;
 
-    public SymptomsRequest(String diagnosisId, List<SymptomType> symptoms) {
+    public SymptomRequest(String diagnosisId, List<SymptomType> symptoms) {
         this.diagnosisId = diagnosisId;
         this.symptoms = symptoms;
     }

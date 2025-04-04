@@ -36,7 +36,7 @@ public class ImageUploadController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PostMapping(value = "/api/diagnosis/image-upload", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/api/v1/diagnosis/image-upload", consumes = {"multipart/form-data"})
     public ResponseEntity<ImageUploadResponse> uploadImage(@RequestParam("image") MultipartFile image) throws IOException {
         String diagnosisId = UUID.randomUUID().toString();
         return ResponseEntity.ok(new ImageUploadResponse(imageUploadService.upload(diagnosisId, image)));
