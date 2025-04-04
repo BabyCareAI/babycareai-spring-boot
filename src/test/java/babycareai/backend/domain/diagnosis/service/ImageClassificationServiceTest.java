@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SkinDiseasePredictionServiceTest {
+class ImageClassificationServiceTest {
 
     @Mock
     private AmazonS3Client s3Client;
@@ -42,15 +42,15 @@ class SkinDiseasePredictionServiceTest {
     private ValueOperations<String, String> valueOperations;
 
     @InjectMocks
-    private SkinDiseasePredictionService skinDiseasePredictionService;
+    private ImageClassificationService imageClassificationService;
 
     private final String bucketName = "test-bucket";
     private final String endpointName = "test-endpoint";
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(skinDiseasePredictionService, "bucket", bucketName);
-        ReflectionTestUtils.setField(skinDiseasePredictionService, "sagemakerEndpointName", endpointName);
+        ReflectionTestUtils.setField(imageClassificationService, "bucket", bucketName);
+        ReflectionTestUtils.setField(imageClassificationService, "sagemakerEndpointName", endpointName);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 
@@ -78,7 +78,7 @@ class SkinDiseasePredictionServiceTest {
                 .thenReturn(sageMakerResponse);
 
         // when
-        skinDiseasePredictionService.predictSkinDisease(diagnosisId);
+        imageClassificationService.classifySkinDisease(diagnosisId);
 
         // then
         verify(s3Client).getObject(eq(bucketName), eq(diagnosisId));

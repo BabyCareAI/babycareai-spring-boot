@@ -19,7 +19,7 @@ import java.time.Duration;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SkinDiseasePredictionService {
+public class ImageClassificationService {
 
     private final AmazonS3Client s3Client;
     private final SageMakerRuntimeClient sageMakerRuntimeClient;
@@ -32,17 +32,17 @@ public class SkinDiseasePredictionService {
     @Value("${sagemaker.endpoint.name}")
     private String sagemakerEndpointName;
 
-    public void predictSkinDisease(String diagnosisId) throws IOException {
+    public void classifySkinDisease(String diagnosisId) throws IOException {
         // 이미지 다운로드
         S3Object imageObject = s3Client.getObject(bucket, diagnosisId);
 
         // 업로드된 이미지에 대한 예측 요청
         byte[] imageBytes = imageObject.getObjectContent().readAllBytes(); // 이미지 바이트로 변환
-        String predictionResult = invokeSageMakerEndpoint(imageBytes); // SageMaker 엔드포인트 호출
+        String classificationResult = invokeSageMakerEndpoint(imageBytes); // SageMaker 엔드포인트 호출
 
-        // diagnosisId, imageUrl, predictionResult Redis에 저장
-        savePredictionToRedis(diagnosisId, predictionResult);
-        log.info("예측 결과 저장 완료. diagnosisId: {}, predictionResult: {}", diagnosisId, predictionResult);
+        // diagnosisId, imageUrl, classificationResult Redis에 저장
+        saveClassificationToRedis(diagnosisId, classificationResult);
+        log.info("예측 결과 저장 완료. diagnosisId: {}, classificationResult: {}", diagnosisId, classificationResult);
     }
 
     private String invokeSageMakerEndpoint(byte[] imageBytes) throws IOException {
@@ -59,10 +59,10 @@ public class SkinDiseasePredictionService {
         return response.body().asUtf8String();
     }
 
-    private void savePredictionToRedis(String diagnosisId, String predictionResult) {
-        String redisKey = "prediction:" + diagnosisId;
+    private void saveClassificationToRedis(String diagnosisId, String classificationResult) {
+        String redisKey = "classification:" + diagnosisId;
 
-        String value = String.format("{\"predictionResult\":%s}", predictionResult);
+        String value = String.format("{\"classificationResult\":%s}", classificationResult);
 
         // Redis에 예측 데이터 저장
         redisTemplate.opsForValue().set(redisKey, value, Duration.ofMinutes(30));

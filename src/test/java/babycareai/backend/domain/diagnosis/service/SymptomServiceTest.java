@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SymptomInputServiceTest {
+class SymptomServiceTest {
 
     @Mock
     private RedisTemplate<String, String> redisTemplate;
@@ -34,7 +34,7 @@ class SymptomInputServiceTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private SymptomInputService symptomInputService;
+    private SymptomService symptomService;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +54,7 @@ class SymptomInputServiceTest {
                 .thenReturn(expectedValue);
 
         // when
-        symptomInputService.saveSymptomsToRedis(diagnosisId, symptoms);
+        symptomService.saveSymptomsToRedis(diagnosisId, symptoms);
 
         // then
         verify(valueOperations).set(
@@ -76,7 +76,7 @@ class SymptomInputServiceTest {
                 .thenReturn(expectedValue);
 
         // when
-        symptomInputService.saveSymptomsToRedis(diagnosisId, symptoms);
+        symptomService.saveSymptomsToRedis(diagnosisId, symptoms);
 
         // then
         verify(valueOperations).set(

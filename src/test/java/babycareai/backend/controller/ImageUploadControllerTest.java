@@ -38,7 +38,7 @@ class ImageUploadControllerTest {
         when(imageUploadService.upload(any(), any())).thenReturn(diagnosisId);
 
         // when & then
-        mockMvc.perform(multipart("/api/diagnosis/image-upload")
+        mockMvc.perform(multipart("/api/v1/diagnosis/image-upload")
                         .file(file))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.diagnosisId").value(diagnosisId));
@@ -48,7 +48,7 @@ class ImageUploadControllerTest {
     @DisplayName("파일이 없는 경우 이미지 업로드 실패")
     void uploadImage_WithoutFile_BadRequest() throws Exception {
         // when & then
-        mockMvc.perform(multipart("/api/diagnosis/image-upload"))
+        mockMvc.perform(multipart("/api/v1/diagnosis/image-upload"))
                 .andExpect(status().isBadRequest());
     }
 }
