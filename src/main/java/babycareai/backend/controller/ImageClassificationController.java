@@ -1,5 +1,6 @@
 package babycareai.backend.controller;
 
+import babycareai.backend.domain.diagnosis.dto.ImageClassificationResponse;
 import babycareai.backend.domain.diagnosis.dto.ImageUploadResponse;
 import babycareai.backend.domain.diagnosis.service.ImageClassificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,9 +37,9 @@ public class ImageClassificationController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PostMapping("/api/v1/diagnosis/classify")
-    public ResponseEntity<Void> classifySkinDisease(@Valid @RequestBody ImageUploadResponse imageUploadResponse) throws IOException {
+    public ResponseEntity<ImageClassificationResponse> classifySkinDisease(@Valid @RequestBody ImageUploadResponse imageUploadResponse) throws IOException {
         String diagnosisId = imageUploadResponse.getDiagnosisId();
-        imageClassificationService.classifySkinDisease(diagnosisId);
-        return ResponseEntity.ok().build();
+        ImageClassificationResponse response = imageClassificationService.classifySkinDisease(diagnosisId);
+        return ResponseEntity.ok(response);
     }
 }
