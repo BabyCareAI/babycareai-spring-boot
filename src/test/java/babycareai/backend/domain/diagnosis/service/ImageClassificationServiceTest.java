@@ -1,8 +1,11 @@
 package babycareai.backend.domain.diagnosis.service;
 
+import babycareai.backend.domain.diagnosis.dto.ImageClassificationResponse;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +24,10 @@ import software.amazon.awssdk.services.sagemakerruntime.model.InvokeEndpointResp
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Iterator;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -41,6 +47,9 @@ class ImageClassificationServiceTest {
     @Mock
     private ValueOperations<String, String> valueOperations;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     @InjectMocks
     private ImageClassificationService imageClassificationService;
 
@@ -51,16 +60,15 @@ class ImageClassificationServiceTest {
     void setUp() {
         ReflectionTestUtils.setField(imageClassificationService, "bucket", bucketName);
         ReflectionTestUtils.setField(imageClassificationService, "sagemakerEndpointName", endpointName);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 
     @Test
-    @DisplayName("피부질환 예측 성공")
-    void predictSkinDisease_Success() throws IOException {
+    @DisplayName("피부질환 예측 성공 - 배열 형태의 결과, 확률이 기준치를 넘는 경우")
+    void classifySkinDisease_Success() throws IOException {
         // given
         String diagnosisId = "test-diagnosis-id";
         byte[] imageBytes = "test image content".getBytes();
-        String predictionResult = "test prediction result";
+        String predictionResult = "[{\"class\":\"shingles\",\"probability\":0.8},{\"class\":\"Chickenpox\",\"probability\":0.2}]";
 
         // S3 mock setup
         S3Object s3Object = mock(S3Object.class);
@@ -77,27 +85,97 @@ class ImageClassificationServiceTest {
         when(sageMakerRuntimeClient.invokeEndpoint(any(InvokeEndpointRequest.class)))
                 .thenReturn(sageMakerResponse);
 
+        // ObjectMapper mock setup
+        JsonNode mockJsonNode = mock(JsonNode.class);
+        when(objectMapper.readTree(predictionResult)).thenReturn(mockJsonNode);
+        when(mockJsonNode.isArray()).thenReturn(true);
+        
+        // JsonNode iterator 설정
+        JsonNode mockItem1 = mock(JsonNode.class);
+        JsonNode mockItem2 = mock(JsonNode.class);
+        
+        // iterator() 메서드 스터빙
+        Iterator<JsonNode> iterator = List.of(mockItem1, mockItem2).iterator();
+        when(mockJsonNode.iterator()).thenReturn(iterator);
+        
+        when(mockItem1.has("probability")).thenReturn(true);
+        when(mockItem2.has("probability")).thenReturn(true);
+        when(mockItem1.get("probability")).thenReturn(mockItem1);
+        when(mockItem2.get("probability")).thenReturn(mockItem2);
+        when(mockItem1.asDouble()).thenReturn(0.8);
+        when(mockItem2.asDouble()).thenReturn(0.2);
+        
+        // Redis mock setup
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+
         // when
-        imageClassificationService.classifySkinDisease(diagnosisId);
+        ImageClassificationResponse response = imageClassificationService.classifySkinDisease(diagnosisId);
 
         // then
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getMessage()).isEqualTo("이미지 분류가 성공적으로 완료되었습니다.");
+        assertThat(response.getClassificationResult()).isEqualTo(predictionResult);
+
         verify(s3Client).getObject(eq(bucketName), eq(diagnosisId));
-
-        // 명시적인 InvokeEndpointRequest를 사용하여 검증
-        // SageMaker SDK의 InvokeEndpointRequest는 equals() 메서드가 구현되어 있지 않아서 any()로 검증이 불가능
-        InvokeEndpointRequest expectedRequest = InvokeEndpointRequest.builder()
-                .endpointName(endpointName)
-                .contentType("application/x-image")
-                .body(SdkBytes.fromByteArray(imageBytes))
-                .build();
-
-        verify(sageMakerRuntimeClient).invokeEndpoint(eq(expectedRequest));
-
-        // Redis에 예측 결과 저장 검증
         verify(valueOperations).set(
-                eq("prediction:" + diagnosisId),
-                eq(String.format("{\"predictionResult\":%s}", predictionResult)),
+                eq("classification:" + diagnosisId),
+                eq(predictionResult),
                 eq(Duration.ofMinutes(30))
         );
+    }
+
+    @Test
+    @DisplayName("피부질환 예측 실패 - 확률이 기준치를 넘지 못하는 경우")
+    void classifySkinDisease_Failure() throws IOException {
+        // given
+        String diagnosisId = "test-diagnosis-id";
+        byte[] imageBytes = "test image content".getBytes();
+        String predictionResult = "[{\"class\":\"shingles\",\"probability\":0.3},{\"class\":\"Chickenpox\",\"probability\":0.2}]";
+
+        // S3 mock setup
+        S3Object s3Object = mock(S3Object.class);
+        S3ObjectInputStream inputStream = new S3ObjectInputStream(
+                new ByteArrayInputStream(imageBytes),
+                null
+        );
+        when(s3Object.getObjectContent()).thenReturn(inputStream);
+        when(s3Client.getObject(eq(bucketName), eq(diagnosisId))).thenReturn(s3Object);
+
+        // SageMaker mock setup
+        InvokeEndpointResponse sageMakerResponse = mock(InvokeEndpointResponse.class);
+        when(sageMakerResponse.body()).thenReturn(SdkBytes.fromUtf8String(predictionResult));
+        when(sageMakerRuntimeClient.invokeEndpoint(any(InvokeEndpointRequest.class)))
+                .thenReturn(sageMakerResponse);
+
+        // ObjectMapper mock setup
+        JsonNode mockJsonNode = mock(JsonNode.class);
+        when(objectMapper.readTree(predictionResult)).thenReturn(mockJsonNode);
+        when(mockJsonNode.isArray()).thenReturn(true);
+        
+        // JsonNode iterator 설정
+        JsonNode mockItem1 = mock(JsonNode.class);
+        JsonNode mockItem2 = mock(JsonNode.class);
+        
+        // iterator() 메서드 스터빙
+        Iterator<JsonNode> iterator = List.of(mockItem1, mockItem2).iterator();
+        when(mockJsonNode.iterator()).thenReturn(iterator);
+        
+        when(mockItem1.has("probability")).thenReturn(true);
+        when(mockItem2.has("probability")).thenReturn(true);
+        when(mockItem1.get("probability")).thenReturn(mockItem1);
+        when(mockItem2.get("probability")).thenReturn(mockItem2);
+        when(mockItem1.asDouble()).thenReturn(0.3);
+        when(mockItem2.asDouble()).thenReturn(0.2);
+
+        // when
+        ImageClassificationResponse response = imageClassificationService.classifySkinDisease(diagnosisId);
+
+        // then
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getMessage()).isEqualTo("최고 확률이 기준치(50%)를 넘지 못했습니다.");
+        assertThat(response.getClassificationResult()).isEqualTo(predictionResult);
+
+        verify(s3Client).getObject(eq(bucketName), eq(diagnosisId));
+        verify(valueOperations, never()).set(any(), any(), any());
     }
 }
