@@ -2,7 +2,6 @@ package babycareai.backend.domain.diagnosis.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,6 @@ public class ImageClassificationService {
 
     private final AmazonS3Client s3Client;
     private final SageMakerRuntimeClient sageMakerRuntimeClient;
-    private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${s3.bucket}")
