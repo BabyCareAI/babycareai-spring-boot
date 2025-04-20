@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,7 +36,8 @@ class SymptomControllerTest {
     void submitSymptom_Success() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        SymptomRequest request = new SymptomRequest(diagnosisId, Arrays.asList(SymptomType.ITCHING, SymptomType.FEVER));
+        Set<SymptomType> symptoms = Set.of(SymptomType.ITCHINESS, SymptomType.FEVER_WARM_SKIN);
+        SymptomRequest request = new SymptomRequest(diagnosisId, symptoms);
 
         // when & then
         mockMvc.perform(post("/api/v1/diagnosis/symptom")
