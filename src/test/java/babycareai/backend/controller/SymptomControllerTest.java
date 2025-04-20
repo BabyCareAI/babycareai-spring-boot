@@ -1,7 +1,7 @@
 package babycareai.backend.controller;
 
 import babycareai.backend.domain.diagnosis.dto.SymptomRequest;
-import babycareai.backend.domain.diagnosis.entity.SymptomType;
+import babycareai.backend.domain.diagnosis.enums.Symptoms;
 import babycareai.backend.domain.diagnosis.service.SymptomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import static org.mockito.Mockito.verify;
@@ -36,7 +35,7 @@ class SymptomControllerTest {
     void submitSymptom_Success() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        Set<SymptomType> symptoms = Set.of(SymptomType.ITCHINESS, SymptomType.FEVER_WARM_SKIN);
+        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS, Symptoms.FEVER_WARM_SKIN);
         SymptomRequest request = new SymptomRequest(diagnosisId, symptoms);
 
         // when & then
