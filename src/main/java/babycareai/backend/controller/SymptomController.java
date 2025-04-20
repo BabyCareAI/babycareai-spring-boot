@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,9 +25,9 @@ public class SymptomController {
     @Tag(name = "진단")
     @Operation(
             summary = "증상 입력",
-            description = "진단 ID와 증상(리스트)을 받아 인메모리 데이터베이스에 저장합니다.\n\n" +
+            description = "진단 ID와 증상(집합)을 받아 인메모리 데이터베이스에 저장합니다.\n\n" +
                     "순서:\n" +
-                    "  1. 클라이언트: 진단 ID, 증상 입력(리스트)\n" +
+                    "  1. 클라이언트: 진단 ID, 증상 입력(집합)\n" +
                     "  2. 서버: 증상 저장\n" +
                     "  3. 서버: 상태 코드 200을 반환\n"
     )
@@ -39,7 +39,7 @@ public class SymptomController {
     @PostMapping("/api/v1/diagnosis/symptom")
     public ResponseEntity<Void> submitSymptom(@Valid @RequestBody SymptomRequest symptomRequest) {
         String diagnosisId = symptomRequest.getDiagnosisId();
-        List<SymptomType> symptomsData = symptomRequest.getSymptoms();
+        Set<SymptomType> symptomsData = symptomRequest.getSymptoms();
         symptomService.saveSymptomsToRedis(diagnosisId, symptomsData);
         return ResponseEntity.ok().build();
     }
