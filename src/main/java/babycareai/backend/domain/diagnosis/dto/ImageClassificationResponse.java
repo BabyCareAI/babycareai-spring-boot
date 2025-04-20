@@ -9,4 +9,5 @@ public class ImageClassificationResponse {
     private boolean success;
     private String message;
     private String classificationResult;
+    private String bodyPart;
 } 

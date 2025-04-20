@@ -2,6 +2,7 @@ package babycareai.backend.domain.diagnosis.service;
 
 import babycareai.backend.domain.diagnosis.dto.ImageClassificationResponse;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -67,11 +68,15 @@ class ImageClassificationServiceTest {
     void classifySkinDisease_Success() throws IOException {
         // given
         String diagnosisId = "test-diagnosis-id";
+        String bodyPart = "face";
         byte[] imageBytes = "test image content".getBytes();
         String predictionResult = "[{\"class\":\"shingles\",\"probability\":0.8},{\"class\":\"Chickenpox\",\"probability\":0.2}]";
 
         // S3 mock setup
         S3Object s3Object = mock(S3Object.class);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.addUserMetadata("body-part", bodyPart);
+        when(s3Object.getObjectMetadata()).thenReturn(metadata);
         S3ObjectInputStream inputStream = new S3ObjectInputStream(
                 new ByteArrayInputStream(imageBytes),
                 null
@@ -117,9 +122,10 @@ class ImageClassificationServiceTest {
         assertThat(response.getClassificationResult()).isEqualTo(predictionResult);
 
         verify(s3Client).getObject(eq(bucketName), eq(diagnosisId));
+        String expectedRedisValue = String.format("{\"result\":%s,\"bodyPart\":\"%s\"}", predictionResult, bodyPart);
         verify(valueOperations).set(
                 eq("classification:" + diagnosisId),
-                eq(predictionResult),
+                eq(expectedRedisValue),
                 eq(Duration.ofMinutes(30))
         );
     }
@@ -129,11 +135,15 @@ class ImageClassificationServiceTest {
     void classifySkinDisease_Failure() throws IOException {
         // given
         String diagnosisId = "test-diagnosis-id";
+        String bodyPart = "face";
         byte[] imageBytes = "test image content".getBytes();
         String predictionResult = "[{\"class\":\"shingles\",\"probability\":0.3},{\"class\":\"Chickenpox\",\"probability\":0.2}]";
 
         // S3 mock setup
         S3Object s3Object = mock(S3Object.class);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.addUserMetadata("body-part", bodyPart);
+        when(s3Object.getObjectMetadata()).thenReturn(metadata);
         S3ObjectInputStream inputStream = new S3ObjectInputStream(
                 new ByteArrayInputStream(imageBytes),
                 null
@@ -174,6 +184,7 @@ class ImageClassificationServiceTest {
         assertThat(response.isSuccess()).isFalse();
         assertThat(response.getMessage()).isEqualTo("최고 확률이 기준치(50%)를 넘지 못했습니다.");
         assertThat(response.getClassificationResult()).isEqualTo(predictionResult);
+        assertThat(response.getBodyPart()).isEqualTo(bodyPart);
 
         verify(s3Client).getObject(eq(bucketName), eq(diagnosisId));
         verify(valueOperations, never()).set(any(), any(), any());
