@@ -1,11 +1,13 @@
 package babycareai.backend.domain.diagnosis.service;
 
+import babycareai.backend.domain.diagnosis.enums.BodyPart;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,6 +43,7 @@ class ImageUploadServiceTest {
     void upload_Success() throws IOException {
         // given
         String diagnosisId = "test-diagnosis-id";
+        BodyPart bodyPart = BodyPart.FACE;
         MockMultipartFile file = new MockMultipartFile(
                 "image",
                 "test.jpg",
@@ -49,15 +52,20 @@ class ImageUploadServiceTest {
         );
 
         // when
-        String result = imageUploadService.upload(diagnosisId, file);
+        String result = imageUploadService.upload(diagnosisId, file, bodyPart);
 
         // then
         assertThat(result).isEqualTo(diagnosisId);
+        
+        ArgumentCaptor<ObjectMetadata> metadataCaptor = ArgumentCaptor.forClass(ObjectMetadata.class);
         verify(s3Client).putObject(
                 eq(bucketName),
                 eq(diagnosisId),
                 any(InputStream.class),
-                any(ObjectMetadata.class)
+                metadataCaptor.capture()
         );
+        
+        ObjectMetadata metadata = metadataCaptor.getValue();
+        assertThat(metadata.getUserMetaDataOf("bodyPart")).isEqualTo(bodyPart.name());
     }
 }

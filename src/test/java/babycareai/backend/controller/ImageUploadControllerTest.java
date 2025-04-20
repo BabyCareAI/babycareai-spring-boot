@@ -1,5 +1,6 @@
 package babycareai.backend.controller;
 
+import babycareai.backend.domain.diagnosis.enums.BodyPart;
 import babycareai.backend.domain.diagnosis.service.ImageUploadService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,11 +36,14 @@ class ImageUploadControllerTest {
                 "test image content".getBytes()
         );
         String diagnosisId = "test-diagnosis-id";
-        when(imageUploadService.upload(any(), any())).thenReturn(diagnosisId);
+        BodyPart bodyPart = BodyPart.FACE;
+        
+        when(imageUploadService.upload(any(), any(), any())).thenReturn(diagnosisId);
 
         // when & then
         mockMvc.perform(multipart("/api/v1/diagnosis/image-upload")
-                        .file(file))
+                        .file(file)
+                        .param("bodyPart", bodyPart.name()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.diagnosisId").value(diagnosisId));
     }
@@ -48,7 +52,25 @@ class ImageUploadControllerTest {
     @DisplayName("파일이 없는 경우 이미지 업로드 실패")
     void uploadImage_WithoutFile_BadRequest() throws Exception {
         // when & then
-        mockMvc.perform(multipart("/api/v1/diagnosis/image-upload"))
+        mockMvc.perform(multipart("/api/v1/diagnosis/image-upload")
+                        .param("bodyPart", BodyPart.FACE.name()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("부위 정보가 없는 경우 이미지 업로드 실패")
+    void uploadImage_WithoutBodyPart_BadRequest() throws Exception {
+        // given
+        MockMultipartFile file = new MockMultipartFile(
+                "image",
+                "test.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
+
+        // when & then
+        mockMvc.perform(multipart("/api/v1/diagnosis/image-upload")
+                        .file(file))
                 .andExpect(status().isBadRequest());
     }
 }
