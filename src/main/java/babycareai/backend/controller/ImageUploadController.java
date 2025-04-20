@@ -1,6 +1,7 @@
 package babycareai.backend.controller;
 
 import babycareai.backend.domain.diagnosis.dto.ImageUploadResponse;
+import babycareai.backend.domain.diagnosis.enums.BodyPart;
 import babycareai.backend.domain.diagnosis.service.ImageUploadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,10 +26,10 @@ public class ImageUploadController {
     @Tag(name = "진단")
     @Operation(
             summary = "이미지 업로드",
-            description = "이미지 업로드하면 s3에 저장하고 진단 ID를 반환합니다.\n\n" +
+            description = "이미지와 부위 정보를 업로드하면 s3에 저장하고 진단 ID를 반환합니다.\n\n" +
                     "순서:\n" +
-                    "  1. 클라이언트: 이미지 업로드\n" +
-                    "  2. 서버: 이미지 S3에 저장\n" +
+                    "  1. 클라이언트: 이미지와 부위 정보 업로드\n" +
+                    "  2. 서버: 이미지 S3에 저장 (부위 정보를 메타데이터에 포함)\n" +
                     "  3. 서버: 진단 ID 반환\n"
     )
     @ApiResponses(value = {
@@ -37,8 +38,10 @@ public class ImageUploadController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PostMapping(value = "/api/v1/diagnosis/image-upload", consumes = {"multipart/form-data"})
-    public ResponseEntity<ImageUploadResponse> uploadImage(@RequestParam("image") MultipartFile image) throws IOException {
+    public ResponseEntity<ImageUploadResponse> uploadImage(
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("bodyPart") BodyPart bodyPart) throws IOException {
         String diagnosisId = UUID.randomUUID().toString();
-        return ResponseEntity.ok(new ImageUploadResponse(imageUploadService.upload(diagnosisId, image)));
+        return ResponseEntity.ok(new ImageUploadResponse(imageUploadService.upload(diagnosisId, image, bodyPart)));
     }
 }
