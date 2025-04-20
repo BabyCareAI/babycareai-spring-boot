@@ -13,9 +13,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -46,8 +45,8 @@ class SymptomServiceTest {
     void saveSymptomsToRedis_Success() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        List<SymptomType> symptoms = Arrays.asList(SymptomType.FEVER, SymptomType.ITCHING);
-        String expectedValue = "{\"symptoms\":[\"FEVER\",\"ITCHING\"]}";
+        Set<SymptomType> symptoms = Set.of(SymptomType.ITCHINESS, SymptomType.RED_SPOTS_RASH);
+        String expectedValue = "{\"symptoms\":[\"ITCHINESS\",\"RED_SPOTS_RASH\"]}";
 
         // objectMapper가 정상적으로 동작하도록 설정
         when(objectMapper.writeValueAsString(Map.of("symptoms", symptoms)))
@@ -69,7 +68,7 @@ class SymptomServiceTest {
     void saveSymptomsToRedis_EmptySymptoms() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        List<SymptomType> symptoms = List.of();
+        Set<SymptomType> symptoms = Set.of();
         String expectedValue = "{\"symptoms\":[]}";
 
         when(objectMapper.writeValueAsString(Map.of("symptoms", symptoms)))

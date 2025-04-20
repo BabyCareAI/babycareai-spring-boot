@@ -1,13 +1,26 @@
 package babycareai.backend.domain.diagnosis.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum SymptomType {
-    FEVER, // 열
-    ITCHING, // 가려움
-    BLISTER, // 물집
-    PAIN, // 통증
-    LOSS_OF_APPETITE, // 식욕 부진
-    DIARRHEA, // 설사
-    COUGH_RUNNY_NOSE, // 기침, 콧물
-    SLEEP_DISORDER, // 수면장애
-    RED_EYES_DISCHARGE // 충혈, 눈곱
+    ITCHINESS("가려움증"),
+    RED_SPOTS_RASH("붉은 반점/발진"),
+    PIMPLES_BLISTERS("뾰루지/물집"),
+    CRUSTS_SCALY_SKIN("딱지/비늘"),
+    PAIN_SORENESS("통증/쓰라림"),
+    FEVER_WARM_SKIN("열감/열"),
+    SWELLING("붓기"),
+    DISCHARGE_PUS("진물/고름"),
+    EYE_MOUTH_SYMPTOMS("눈/입 관련 증상"),
+    VOMITING_DIARRHEA("구토/설사"),
+    LOSS_OF_APPETITE("식욕부진"),
+    IRRITABILITY_CRYING("보챔/울음");
+
+    private final String description;
+
+    SymptomType(String description) {
+        this.description = description;
+    }
+
 }
