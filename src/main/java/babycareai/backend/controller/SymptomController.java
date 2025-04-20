@@ -1,7 +1,7 @@
 package babycareai.backend.controller;
 
 import babycareai.backend.domain.diagnosis.dto.SymptomRequest;
-import babycareai.backend.domain.diagnosis.entity.SymptomType;
+import babycareai.backend.domain.diagnosis.enums.Symptoms;
 import babycareai.backend.domain.diagnosis.service.SymptomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,7 +39,7 @@ public class SymptomController {
     @PostMapping("/api/v1/diagnosis/symptom")
     public ResponseEntity<Void> submitSymptom(@Valid @RequestBody SymptomRequest symptomRequest) {
         String diagnosisId = symptomRequest.getDiagnosisId();
-        Set<SymptomType> symptomsData = symptomRequest.getSymptoms();
+        Set<Symptoms> symptomsData = symptomRequest.getSymptoms();
         symptomService.saveSymptomsToRedis(diagnosisId, symptomsData);
         return ResponseEntity.ok().build();
     }

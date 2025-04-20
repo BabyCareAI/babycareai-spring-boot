@@ -1,6 +1,6 @@
 package babycareai.backend.domain.diagnosis.service;
 
-import babycareai.backend.domain.diagnosis.entity.SymptomType;
+import babycareai.backend.domain.diagnosis.enums.Symptoms;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +45,7 @@ class SymptomServiceTest {
     void saveSymptomsToRedis_Success() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        Set<SymptomType> symptoms = Set.of(SymptomType.ITCHINESS, SymptomType.RED_SPOTS_RASH);
+        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS, Symptoms.RED_SPOTS_RASH);
         String expectedValue = "{\"symptoms\":[\"ITCHINESS\",\"RED_SPOTS_RASH\"]}";
 
         // objectMapper가 정상적으로 동작하도록 설정
@@ -68,7 +68,7 @@ class SymptomServiceTest {
     void saveSymptomsToRedis_EmptySymptoms() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        Set<SymptomType> symptoms = Set.of();
+        Set<Symptoms> symptoms = Set.of();
         String expectedValue = "{\"symptoms\":[]}";
 
         when(objectMapper.writeValueAsString(Map.of("symptoms", symptoms)))
