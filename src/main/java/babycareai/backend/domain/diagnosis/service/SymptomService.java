@@ -1,6 +1,6 @@
 package babycareai.backend.domain.diagnosis.service;
 
-import babycareai.backend.domain.diagnosis.entity.SymptomType;
+import babycareai.backend.domain.diagnosis.enums.Symptoms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +23,9 @@ public class SymptomService {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public void saveSymptomsToRedis(String diagnosisId, Set<SymptomType> symptoms) {
+    public void saveSymptomsToRedis(String diagnosisId, Set<Symptoms> symptoms) {
         String redisKey = REDIS_KEY_PREFIX + diagnosisId;
-        Map<String, Set<SymptomType>> symptomsMap = Map.of("symptoms", symptoms);
+        Map<String, Set<Symptoms>> symptomsMap = Map.of("symptoms", symptoms);
         
         try {
             String value = objectMapper.writeValueAsString(symptomsMap);

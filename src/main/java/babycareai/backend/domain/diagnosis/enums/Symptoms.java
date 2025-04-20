@@ -1,9 +1,9 @@
-package babycareai.backend.domain.diagnosis.entity;
+package babycareai.backend.domain.diagnosis.enums;
 
 import lombok.Getter;
 
 @Getter
-public enum SymptomType {
+public enum Symptoms {
     ITCHINESS("가려움증"),
     RED_SPOTS_RASH("붉은 반점/발진"),
     PIMPLES_BLISTERS("뾰루지/물집"),
@@ -17,10 +17,10 @@ public enum SymptomType {
     LOSS_OF_APPETITE("식욕부진"),
     IRRITABILITY_CRYING("보챔/울음");
 
-    private final String description;
+    private final String koreanName;
 
-    SymptomType(String description) {
-        this.description = description;
+    Symptoms(String koreanName) {
+        this.koreanName = koreanName;
     }
 
 }
