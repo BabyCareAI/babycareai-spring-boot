@@ -37,8 +37,9 @@ public class ImageClassificationService {
     private static final double CONFIDENCE_THRESHOLD = 0.5; // 50%
 
     public ImageClassificationResponse classifySkinDisease(String diagnosisId) throws IOException {
-        // 이미지 다운로드
+        // 이미지 다운로드 및 메타데이터 조회
         S3Object imageObject = s3Client.getObject(bucket, diagnosisId);
+        String bodyPart = imageObject.getObjectMetadata().getUserMetaDataOf("bodyPart");
 
         // 업로드된 이미지에 대한 예측 요청
         byte[] imageBytes = imageObject.getObjectContent().readAllBytes();
@@ -57,17 +58,20 @@ public class ImageClassificationService {
             return ImageClassificationResponse.builder()
                     .success(false)
                     .message("최고 확률이 기준치(50%)를 넘지 못했습니다.")
+                    .bodyPart(bodyPart)
                     .classificationResult(classificationResult)
                     .build();
         }
 
-        // Redis에 결과 저장
-        saveClassificationToRedis(diagnosisId, classificationResult);
-        log.info("예측 결과 저장 완료. diagnosisId: {}, classificationResult: {}", diagnosisId, classificationResult);
+        // Redis에 결과 저장 (부위 정보 포함)
+        saveClassificationToRedis(diagnosisId, bodyPart, classificationResult);
+        log.info("예측 결과 저장 완료. diagnosisId: {}, bodyPart: {}, classificationResult: {}", 
+                diagnosisId, bodyPart, classificationResult);
 
         return ImageClassificationResponse.builder()
                 .success(true)
                 .message("이미지 분류가 성공적으로 완료되었습니다.")
+                .bodyPart(bodyPart)
                 .classificationResult(classificationResult)
                 .build();
     }
@@ -120,8 +124,9 @@ public class ImageClassificationService {
         return response.body().asUtf8String();
     }
 
-    private void saveClassificationToRedis(String diagnosisId, String classificationResult) {
+    private void saveClassificationToRedis(String diagnosisId, String bodyPart, String classificationResult) {
         String redisKey = "classification:" + diagnosisId;
-        redisTemplate.opsForValue().set(redisKey, classificationResult, Duration.ofMinutes(30));
+        String value = String.format("{\"result\":%s,\"bodyPart\":\"%s\"}", classificationResult, bodyPart);
+        redisTemplate.opsForValue().set(redisKey, value, Duration.ofMinutes(30));
     }
 }
