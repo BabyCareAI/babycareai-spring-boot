@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
+import babycareai.backend.exception.ImageUploadException;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,8 +39,14 @@ public class ImageUploadController {
     })
     @PostMapping(value = "/api/v1/diagnosis/image-upload", consumes = {"multipart/form-data"})
     public ResponseEntity<ImageUploadResponse> uploadImage(
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("bodyPart") BodyPart bodyPart) throws IOException {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "bodyPart", required = false) BodyPart bodyPart) {
+        if (image == null || image.isEmpty()) {
+            throw new ImageUploadException("IMAGE_MISSING", "업로드할 이미지가 없습니다.");
+        }
+        if (bodyPart == null) {
+            throw new ImageUploadException("BODY_PART_MISSING", "부위 정보가 누락되었습니다.");
+        }
         String diagnosisId = UUID.randomUUID().toString();
         return ResponseEntity.ok(new ImageUploadResponse(imageUploadService.upload(diagnosisId, image, bodyPart)));
     }
