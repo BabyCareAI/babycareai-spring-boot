@@ -69,6 +69,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(ImageClassificationException.class)
+    public ResponseEntity<ErrorResponse> handleImageClassificationException(ImageClassificationException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(e.getCode())
+                .message("이미지 분류 중 오류가 발생했습니다.")
+                .detail(e.getMessage())
+                .timestamp(java.time.LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
         ErrorResponse errorResponse = ErrorResponse.builder()

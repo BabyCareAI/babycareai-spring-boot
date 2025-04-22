@@ -36,45 +36,60 @@ public class ImageClassificationService {
 
     private static final double CONFIDENCE_THRESHOLD = 0.5; // 50%
 
-    public ImageClassificationResponse classifySkinDisease(String diagnosisId) throws IOException {
-        // 이미지 다운로드 및 메타데이터 조회
-        S3Object imageObject = s3Client.getObject(bucket, diagnosisId);
-        String bodyPart = imageObject.getObjectMetadata().getUserMetaDataOf("bodyPart");
+    /**
+     * 진단 ID로 S3에서 이미지를 가져와 SageMaker로 분류 후 결과를 반환합니다.
+     * 예외 발생 시 ImageClassificationException으로 래핑합니다.
+     */
+    public ImageClassificationResponse classifySkinDisease(String diagnosisId) {
+        try {
+            // 이미지 다운로드 및 메타데이터 조회
+            S3Object imageObject = s3Client.getObject(bucket, diagnosisId);
+            String bodyPart = imageObject.getObjectMetadata().getUserMetaDataOf("bodyPart");
 
-        // 업로드된 이미지에 대한 예측 요청
-        byte[] imageBytes = imageObject.getObjectContent().readAllBytes();
-        String classificationResult = invokeSageMakerEndpoint(imageBytes);
+            // 업로드된 이미지에 대한 예측 요청
+            byte[] imageBytes = imageObject.getObjectContent().readAllBytes();
+            String classificationResult = invokeSageMakerEndpoint(imageBytes);
 
-        // JSON 파싱
-        JsonNode resultNode = parseClassificationResult(classificationResult);
-        
-        // 최고 확률 찾기
-        double maxProbability = findMaxProbability(resultNode);
-        
-        log.info("최고 확률: {}", maxProbability);
+            // JSON 파싱
+            JsonNode resultNode = parseClassificationResult(classificationResult);
 
-        // 확률이 기준치를 넘지 못하면 실패 반환
-        if (maxProbability < CONFIDENCE_THRESHOLD) {
+            // 최고 확률 찾기
+            double maxProbability = findMaxProbability(resultNode);
+
+            log.info("최고 확률: {}", maxProbability);
+
+            // 확률이 기준치를 넘지 못하면 실패 반환
+            if (maxProbability < CONFIDENCE_THRESHOLD) {
+                return ImageClassificationResponse.builder()
+                        .success(false)
+                        .message("최고 확률이 기준치(50%)를 넘지 못했습니다.")
+                        .bodyPart(bodyPart)
+                        .classificationResult(classificationResult)
+                        .build();
+            }
+
+            // Redis에 결과 저장 (부위 정보 포함)
+            saveClassificationToRedis(diagnosisId, bodyPart, classificationResult);
+            log.info("예측 결과 저장 완료. diagnosisId: {}, bodyPart: {}, classificationResult: {}",
+                    diagnosisId, bodyPart, classificationResult);
+
             return ImageClassificationResponse.builder()
-                    .success(false)
-                    .message("최고 확률이 기준치(50%)를 넘지 못했습니다.")
+                    .success(true)
+                    .message("이미지 분류가 성공적으로 완료되었습니다.")
                     .bodyPart(bodyPart)
                     .classificationResult(classificationResult)
                     .build();
+        } catch (com.amazonaws.services.s3.model.AmazonS3Exception e) {
+            throw new babycareai.backend.exception.ImageClassificationException("S3_ERROR", "S3에서 이미지를 찾을 수 없습니다.", e);
+        } catch (com.amazonaws.SdkClientException e) {
+            throw new babycareai.backend.exception.ImageClassificationException("S3_CLIENT_ERROR", "S3 클라이언트 오류가 발생했습니다.", e);
+        } catch (java.io.IOException e) {
+            throw new babycareai.backend.exception.ImageClassificationException("IO_ERROR", "이미지 데이터 처리 중 오류가 발생했습니다.", e);
+        } catch (Exception e) {
+            throw new babycareai.backend.exception.ImageClassificationException("UNKNOWN_ERROR", "이미지 분류 과정에서 알 수 없는 오류가 발생했습니다.", e);
         }
-
-        // Redis에 결과 저장 (부위 정보 포함)
-        saveClassificationToRedis(diagnosisId, bodyPart, classificationResult);
-        log.info("예측 결과 저장 완료. diagnosisId: {}, bodyPart: {}, classificationResult: {}", 
-                diagnosisId, bodyPart, classificationResult);
-
-        return ImageClassificationResponse.builder()
-                .success(true)
-                .message("이미지 분류가 성공적으로 완료되었습니다.")
-                .bodyPart(bodyPart)
-                .classificationResult(classificationResult)
-                .build();
     }
+
 
     /**
      * 분류 결과 JSON 문자열을 파싱하여 JsonNode 객체로 변환합니다.
