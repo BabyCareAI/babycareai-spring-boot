@@ -37,3 +37,9 @@ application-aws.properties
 
 ### VS Code ###
 .vscode/
+
+### cursor ###
+.cursor
+
+### Windsurf ###
+.windsurfrules
