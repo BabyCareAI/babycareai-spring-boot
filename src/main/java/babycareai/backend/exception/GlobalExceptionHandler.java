@@ -17,6 +17,21 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(SymptomException.class)
+    public ResponseEntity<ErrorResponse> handleSymptomException(SymptomException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(e.getCode())
+                .message(e.getMessage())
+                .detail(e.getCause() != null ? e.getCause().getMessage() : null)
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+        // Validation errors use BAD_REQUEST, others INTERNAL_SERVER_ERROR
+        HttpStatus status = "INVALID_DIAGNOSIS_ID".equals(e.getCode()) || "INVALID_SYMPTOMS".equals(e.getCode())
+                ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
     @ExceptionHandler(ImageUploadException.class)
     public ResponseEntity<ErrorResponse> handleImageUploadException(ImageUploadException e, HttpServletRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
