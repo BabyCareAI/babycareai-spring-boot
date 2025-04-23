@@ -24,6 +24,7 @@ public class SymptomService {
     private final ObjectMapper objectMapper;
 
     public void saveSymptomsToRedis(String diagnosisId, Set<Symptoms> symptoms) {
+
         if (diagnosisId == null || diagnosisId.isBlank()) {
             throw new babycareai.backend.exception.SymptomException("INVALID_DIAGNOSIS_ID", "진단 ID는 필수 값입니다.");
         }
