@@ -1,5 +1,7 @@
 package babycareai.backend.exception;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
 import babycareai.backend.common.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,6 +69,21 @@ public class GlobalExceptionHandler {
                 .detail(e.getMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
+        String detail = e.getBindingResult().getAllErrors().stream()
+                .map(org.springframework.context.support.DefaultMessageSourceResolvable::getDefaultMessage)
+                .findFirst().orElse(e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code("INVALID_REQUEST")
+                .message("요청 값이 올바르지 않습니다.")
+                .detail(detail)
+                .timestamp(java.time.LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(ImageClassificationException.class)
