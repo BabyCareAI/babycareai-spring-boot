@@ -69,7 +69,11 @@ public class ImageClassificationService {
             }
 
             // Redis에 결과 저장 (부위 정보 포함)
-            saveClassificationToRedis(diagnosisId, bodyPart, classificationResult);
+            try {
+                saveClassificationToRedis(diagnosisId, bodyPart, classificationResult);
+            } catch (Exception e) {
+                log.error("Redis 저장 중 예외 발생, 무시하고 진행합니다.", e);
+            }
             log.info("예측 결과 저장 완료. diagnosisId: {}, bodyPart: {}, classificationResult: {}",
                     diagnosisId, bodyPart, classificationResult);
 
@@ -83,9 +87,16 @@ public class ImageClassificationService {
             throw new babycareai.backend.exception.ImageClassificationException("S3_ERROR", "S3에서 이미지를 찾을 수 없습니다.", e);
         } catch (com.amazonaws.SdkClientException e) {
             throw new babycareai.backend.exception.ImageClassificationException("S3_CLIENT_ERROR", "S3 클라이언트 오류가 발생했습니다.", e);
+        } catch (software.amazon.awssdk.core.exception.SdkClientException e) {
+            throw new babycareai.backend.exception.ImageClassificationException("S3_CLIENT_ERROR", "SageMaker 클라이언트 오류가 발생했습니다.", e);
         } catch (java.io.IOException e) {
             throw new babycareai.backend.exception.ImageClassificationException("IO_ERROR", "이미지 데이터 처리 중 오류가 발생했습니다.", e);
         } catch (Exception e) {
+            if (e instanceof IOException
+                || (e.getCause() != null && e.getCause() instanceof IOException)
+                || (e.getMessage() != null && e.getMessage().contains("IO error"))) {
+                throw new babycareai.backend.exception.ImageClassificationException("IO_ERROR", "이미지 데이터 처리 중 오류가 발생했습니다.", e);
+            }
             throw new babycareai.backend.exception.ImageClassificationException("UNKNOWN_ERROR", "이미지 분류 과정에서 알 수 없는 오류가 발생했습니다.", e);
         }
     }

@@ -88,6 +88,42 @@ class ImageClassificationControllerTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("피부질환 예측 실패 - 서비스에서 ImageClassificationException 발생 시 에러 반환")
+    void predictSkinDisease_ServiceThrowsImageClassificationException_ReturnsError() throws Exception {
+        // given
+        String diagnosisId = "invalid-id";
+        ImageUploadResponse request = new ImageUploadResponse(diagnosisId);
+        when(imageClassificationService.classifySkinDisease(diagnosisId))
+                .thenThrow(new babycareai.backend.exception.ImageClassificationException("S3_ERROR", "S3에서 이미지를 찾을 수 없습니다."));
+
+        // when & then
+        mockMvc.perform(post("/api/v1/diagnosis/classify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("S3_ERROR"))
+                .andExpect(jsonPath("$.message").value("이미지 분류 중 오류가 발생했습니다."))
+                .andExpect(jsonPath("$.detail").value("S3에서 이미지를 찾을 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("피부질환 예측 실패 - 서비스에서 ImageClassificationException 발생 시 에러 반환")
+    void predictSkinDisease_ServiceThrowsImageClassificationException_ReturnsError2() throws Exception {
+        // given
+        String diagnosisId = "invalid-id";
+        ImageUploadResponse request = new ImageUploadResponse(diagnosisId);
+        when(imageClassificationService.classifySkinDisease(diagnosisId))
+                .thenThrow(new babycareai.backend.exception.ImageClassificationException("S3_ERROR", "S3에서 이미지를 찾을 수 없습니다."));
+
+        // when & then
+        mockMvc.perform(post("/api/v1/diagnosis/classify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("S3_ERROR"))
+                .andExpect(jsonPath("$.message").value("이미지 분류 중 오류가 발생했습니다."))
+                .andExpect(jsonPath("$.detail").value("S3에서 이미지를 찾을 수 없습니다."));
+    }
 }
-
-
