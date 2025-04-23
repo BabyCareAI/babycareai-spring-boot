@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +37,10 @@ public class ImageClassificationController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PostMapping("/api/v1/diagnosis/classify")
-    public ResponseEntity<ImageClassificationResponse> classifySkinDisease(@Valid @RequestBody ImageUploadResponse imageUploadResponse) throws IOException {
+    /*
+      진단 ID를 받아 이미지 분류 결과를 반환합니다.
+     */
+    public ResponseEntity<ImageClassificationResponse> classifySkinDisease(@Valid @RequestBody ImageUploadResponse imageUploadResponse) {
         String diagnosisId = imageUploadResponse.getDiagnosisId();
         ImageClassificationResponse response = imageClassificationService.classifySkinDisease(diagnosisId);
         return ResponseEntity.ok(response);
