@@ -37,12 +37,13 @@ class SymptomServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        // 불필요한 stubbing 제거. 필요한 테스트에서만 stubbing.
     }
 
     @Test
     @DisplayName("증상 저장 성공")
     void saveSymptomsToRedis_Success() throws Exception {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         // given
         String diagnosisId = "test-diagnosis-id";
         Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS, Symptoms.RED_SPOTS_RASH);
@@ -64,24 +65,56 @@ class SymptomServiceTest {
     }
 
     @Test
-    @DisplayName("증상 없이 저장 성공")
-    void saveSymptomsToRedis_EmptySymptoms() throws Exception {
-        // given
+    @DisplayName("진단 ID가 null이면 SymptomException 발생")
+    void saveSymptomsToRedis_NullDiagnosisId_ThrowsException() {
+        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                symptomService.saveSymptomsToRedis(null, symptoms)
+        ).isInstanceOf(babycareai.backend.exception.SymptomException.class)
+         .hasMessageContaining("진단 ID는 필수 값입니다.");
+    }
+
+    @Test
+    @DisplayName("진단 ID가 빈 문자열이면 SymptomException 발생")
+    void saveSymptomsToRedis_BlankDiagnosisId_ThrowsException() {
+        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                symptomService.saveSymptomsToRedis("   ", symptoms)
+        ).isInstanceOf(babycareai.backend.exception.SymptomException.class)
+         .hasMessageContaining("진단 ID는 필수 값입니다.");
+    }
+
+    @Test
+    @DisplayName("증상 값이 null이면 SymptomException 발생")
+    void saveSymptomsToRedis_NullSymptoms_ThrowsException() {
+        String diagnosisId = "test-diagnosis-id";
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                symptomService.saveSymptomsToRedis(diagnosisId, null)
+        ).isInstanceOf(babycareai.backend.exception.SymptomException.class)
+         .hasMessageContaining("최소 1개 이상의 증상을 선택해야 합니다.");
+    }
+
+    @Test
+    @DisplayName("증상 값이 비어 있으면 SymptomException 발생")
+    void saveSymptomsToRedis_EmptySymptoms_ThrowsException() {
         String diagnosisId = "test-diagnosis-id";
         Set<Symptoms> symptoms = Set.of();
-        String expectedValue = "{\"symptoms\":[]}";
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                symptomService.saveSymptomsToRedis(diagnosisId, symptoms)
+        ).isInstanceOf(babycareai.backend.exception.SymptomException.class)
+         .hasMessageContaining("최소 1개 이상의 증상을 선택해야 합니다.");
+    }
 
+    @Test
+    @DisplayName("직렬화 오류 발생 시 SymptomException 발생")
+    void saveSymptomsToRedis_SerializationError_ThrowsException() throws Exception {
+        String diagnosisId = "test-diagnosis-id";
+        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS);
         when(objectMapper.writeValueAsString(Map.of("symptoms", symptoms)))
-                .thenReturn(expectedValue);
-
-        // when
-        symptomService.saveSymptomsToRedis(diagnosisId, symptoms);
-
-        // then
-        verify(valueOperations).set(
-                eq("symptoms:" + diagnosisId),
-                eq(expectedValue),
-                eq(Duration.ofMinutes(30))
-        );
+                .thenThrow(new com.fasterxml.jackson.core.JsonProcessingException("직렬화 오류") {});
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                symptomService.saveSymptomsToRedis(diagnosisId, symptoms)
+        ).isInstanceOf(babycareai.backend.exception.SymptomException.class)
+         .hasMessageContaining("증상 정보 저장 중 오류가 발생했습니다");
     }
 }
