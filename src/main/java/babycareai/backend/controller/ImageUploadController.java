@@ -3,25 +3,34 @@ package babycareai.backend.controller;
 import babycareai.backend.domain.diagnosis.dto.ImageUploadResponse;
 import babycareai.backend.domain.diagnosis.enums.BodyPart;
 import babycareai.backend.domain.diagnosis.service.ImageUploadService;
+import babycareai.backend.exception.ImageUploadException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
-import babycareai.backend.exception.ImageUploadException;
 
 @RestController
 @RequiredArgsConstructor
 public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
+    private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE
+    );
 
     @Tag(name = "진단")
     @Operation(
@@ -33,11 +42,14 @@ public class ImageUploadController {
                     "  3. 서버: 진단 ID 반환\n"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ImageUploadResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PostMapping(value = "/api/v1/diagnosis/image-upload", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/api/v1/diagnosis/image-upload",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
     public ResponseEntity<ImageUploadResponse> uploadImage(
             @RequestParam(value = "image", required = false) MultipartFile image,
             @RequestParam(value = "bodyPart", required = false) BodyPart bodyPart) {
@@ -46,6 +58,9 @@ public class ImageUploadController {
         }
         if (bodyPart == null) {
             throw new ImageUploadException("BODY_PART_MISSING", "부위 정보가 누락되었습니다.");
+        }
+        if (!ALLOWED_IMAGE_TYPES.contains(image.getContentType())) {
+            throw new ImageUploadException("IMAGE_INVALID_TYPE", "이미지 파일만 업로드 가능합니다.");
         }
         String diagnosisId = UUID.randomUUID().toString();
         return ResponseEntity.ok(new ImageUploadResponse(imageUploadService.upload(diagnosisId, image, bodyPart)));
