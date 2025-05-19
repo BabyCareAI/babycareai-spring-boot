@@ -23,6 +23,7 @@ public class SwaggerConfig {
                         .title("BabyCareAI API")
                         .description("BabyCareAI팀의 모찌케어 서비스 API명세서입니다.")
                         .version("0.0.1"))
-                .servers(List.of(new Server().url(serverUrl)));
+//                .servers(List.of(new Server().url(serverUrl)));
+                .servers(List.of(new Server().url(serverUrl + "/springboot")));
     }
 }
