@@ -214,7 +214,7 @@ class ImageClassificationServiceTest {
                 .thenThrow(software.amazon.awssdk.core.exception.SdkClientException.builder().message("SageMaker error").build());
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> imageClassificationService.classifySkinDisease(diagnosisId))
                 .isInstanceOf(babycareai.backend.exception.ImageClassificationException.class)
-                .hasFieldOrPropertyWithValue("code", "S3_CLIENT_ERROR");
+                .hasFieldOrPropertyWithValue("code", "SAGEMAKER_CLIENT_ERROR");
     }
 
     @Test

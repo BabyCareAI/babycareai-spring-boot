@@ -88,7 +88,7 @@ public class ImageClassificationService {
         } catch (com.amazonaws.SdkClientException e) {
             throw new babycareai.backend.exception.ImageClassificationException("S3_CLIENT_ERROR", "S3 클라이언트 오류가 발생했습니다.", e);
         } catch (software.amazon.awssdk.core.exception.SdkClientException e) {
-            throw new babycareai.backend.exception.ImageClassificationException("S3_CLIENT_ERROR", "SageMaker 클라이언트 오류가 발생했습니다.", e);
+            throw new babycareai.backend.exception.ImageClassificationException("SAGEMAKER_CLIENT_ERROR", "SageMaker 클라이언트 오류가 발생했습니다.", e);
         } catch (java.io.IOException e) {
             throw new babycareai.backend.exception.ImageClassificationException("IO_ERROR", "이미지 데이터 처리 중 오류가 발생했습니다.", e);
         } catch (Exception e) {
@@ -140,14 +140,27 @@ public class ImageClassificationService {
     }
 
     private String invokeSageMakerEndpoint(byte[] imageBytes) throws IOException {
-        InvokeEndpointRequest request = InvokeEndpointRequest.builder()
-                .endpointName(sagemakerEndpointName)
-                .contentType("application/x-image")
-                .body(SdkBytes.fromByteArray(imageBytes))
-                .build();
+        try {
+            log.info("SageMaker 엔드포인트 호출 시작: {}", sagemakerEndpointName);
+            log.info("이미지 크기: {} bytes", imageBytes.length);
 
-        InvokeEndpointResponse response = sageMakerRuntimeClient.invokeEndpoint(request);
-        return response.body().asUtf8String();
+            InvokeEndpointRequest request = InvokeEndpointRequest.builder()
+                    .endpointName(sagemakerEndpointName)
+                    .contentType("application/x-image")
+                    .body(SdkBytes.fromByteArray(imageBytes))
+                    .build();
+
+            log.info("SageMaker 요청 생성 완료");
+            
+            InvokeEndpointResponse response = sageMakerRuntimeClient.invokeEndpoint(request);
+            String result = response.body().asUtf8String();
+            
+            log.info("SageMaker 응답 수신 완료: {}", result);
+            return result;
+        } catch (software.amazon.awssdk.core.exception.SdkClientException e) {
+            log.error("SageMaker 호출 중 오류 발생: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     private void saveClassificationToRedis(String diagnosisId, String bodyPart, String classificationResult) {
