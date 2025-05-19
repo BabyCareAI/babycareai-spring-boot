@@ -4,11 +4,13 @@ import babycareai.backend.domain.diagnosis.dto.SymptomRequest;
 import babycareai.backend.domain.diagnosis.enums.Symptoms;
 import babycareai.backend.domain.diagnosis.service.SymptomService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,15 +34,21 @@ public class SymptomController {
                     "  3. 서버: 상태 코드 200을 반환\n"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PostMapping("/api/v1/diagnosis/symptom")
+    @PostMapping(value = "/api/v1/diagnosis/symptom",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Void> submitSymptom(@Valid @RequestBody SymptomRequest symptomRequest) {
         String diagnosisId = symptomRequest.getDiagnosisId();
         Set<Symptoms> symptomsData = symptomRequest.getSymptoms();
         symptomService.saveSymptomsToRedis(diagnosisId, symptomsData);
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .build();
     }
 }

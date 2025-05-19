@@ -1,6 +1,7 @@
 package babycareai.backend.domain.diagnosis.dto;
 
 import babycareai.backend.domain.diagnosis.enums.Symptoms;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 @Getter
 @NoArgsConstructor
+@Schema(description = "증상 요청")
 public class SymptomRequest {
 
     @NotBlank(message = "진단 ID는 필수 값입니다.")

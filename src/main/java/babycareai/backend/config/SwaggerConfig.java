@@ -15,14 +15,17 @@ public class SwaggerConfig {
     @Value("${server.url}")
     private String serverUrl;
 
+    @Value("${swagger.server.path:}")
+    private String swaggerServerPath;
 
     @Bean
     public OpenAPI openAPI() {
+        String serverUrlWithPath = serverUrl + (swaggerServerPath != null ? swaggerServerPath : "");
         return new OpenAPI()
                 .info(new Info()
                         .title("BabyCareAI API")
                         .description("BabyCareAI팀의 모찌케어 서비스 API명세서입니다.")
                         .version("0.0.1"))
-                .servers(List.of(new Server().url(serverUrl)));
+                .servers(List.of(new Server().url(serverUrlWithPath)));
     }
 }

@@ -4,11 +4,14 @@ import babycareai.backend.domain.diagnosis.dto.ImageClassificationResponse;
 import babycareai.backend.domain.diagnosis.dto.ImageUploadResponse;
 import babycareai.backend.domain.diagnosis.service.ImageClassificationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,11 +35,15 @@ public class ImageClassificationController {
                     "  3. 서버: 상태 코드 200을 반환\n"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ImageClassificationResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PostMapping("/api/v1/diagnosis/classify")
+    @PostMapping(
+            value = "/api/v1/diagnosis/classify",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
     /*
       진단 ID를 받아 이미지 분류 결과를 반환합니다.
      */
