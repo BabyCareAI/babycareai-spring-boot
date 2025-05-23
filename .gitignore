@@ -43,3 +43,7 @@ application-aws.properties
 
 ### Windsurf ###
 .windsurfrules
+
+### local files (monitoring) ###
+docker-compose.yml
+prometheus.yml
