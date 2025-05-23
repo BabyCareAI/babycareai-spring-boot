@@ -27,7 +27,7 @@ public class ImageClassificationController {
 
     @Tag(name = "진단")
     @Operation(
-            summary = "피부 질환 예측(배포한 예측 모델)",
+            summary = "피부 질환 예측 (배포한 예측 모델)",
             description = "진단 ID를 받으면 배포한 예측 모델이 피부 질환을 예측 후 결과를 인메모리 데이터베이스에 저장합니다.\n\n" +
                     "순서:\n" +
                     "  1. 클라이언트: 진단 ID 입력\n" +
