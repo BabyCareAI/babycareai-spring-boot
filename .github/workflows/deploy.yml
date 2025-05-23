@@ -22,6 +22,8 @@ jobs:
         run: |
           pwd
           ls -la
+          ls -la src
+          mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_PROPERTIES }}" > src/main/resources/application-aws.properties
 
       - name: 테스트 및 빌드하기
