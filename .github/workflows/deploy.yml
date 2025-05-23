@@ -19,10 +19,13 @@ jobs:
           java-version: 17
 
       - name: application.properties 파일 만들기
+        env:
+          APPLICATION_PROPERTIES: ${{ secrets.SPRINGBOOT_APPLICATION_PROPERTIES }}
+          APPLICATION_AWS_PROPERTIES: ${{ secrets.SPRINGBOOT_APPLICATION_AWS_PROPERTIES }}
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.SPRINGBOOT_APPLICATION_PROPERTIES }}" | base64 -d > src/main/resources/application.properties
-          echo "${{ secrets.SPRINGBOOT_APPLICATION_AWS_PROPERTIES }}" | base64 -d > src/main/resources/application-aws.properties
+          printf "%s" "$APPLICATION_PROPERTIES" > src/main/resources/application.properties
+          printf "%s" "$APPLICATION_AWS_PROPERTIES" > src/main/resources/application-aws.properties
 
       - name: 테스트 및 빌드하기
         run: |
