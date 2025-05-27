@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "--------------- 서버 배포 시작 -----------------"
+echo "--------------- release/57-v0.4.1 시작 -----------------"
 docker stop springboot-server || true
 docker rm springboot-server || true
 docker pull 293337163237.dkr.ecr.ap-northeast-2.amazonaws.com/babycareai/springboot-server:latest
