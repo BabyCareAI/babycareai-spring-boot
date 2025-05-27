@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "--------------- release/57-v0.4.1 배포 시작 (3) -----------------"
+echo "--------------- release/57-v0.4.1 배포 시작 (4) -----------------"
 
 # 기존 컨테이너 중지 및 제거
 docker compose down
@@ -9,7 +9,7 @@ docker compose down
 docker pull 293337163237.dkr.ecr.ap-northeast-2.amazonaws.com/babycareai/springboot-server:latest
 
 # 백그라운드로 전체 서비스 시작
-cd babycareai-server
+cd /home/ubuntu/babycareai-server
 docker compose up -d
 
 # 필요 없는 springboot-server 이미지 정리
