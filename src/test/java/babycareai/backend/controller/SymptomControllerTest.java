@@ -37,7 +37,7 @@ class SymptomControllerTest {
     void submitSymptom_Success() throws Exception {
         // given
         String diagnosisId = "test-diagnosis-id";
-        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS, Symptoms.FEVER_WARM_SKIN);
+        Set<Symptoms> symptoms = Set.of(Symptoms.FEVER, Symptoms.ACHES_AND_PAINS);
         SymptomRequest request = new SymptomRequest(diagnosisId, symptoms);
 
         // when & then
@@ -52,7 +52,7 @@ class SymptomControllerTest {
     @Test
     @DisplayName("증상 제출 실패 - 진단 ID 누락")
     void submitSymptom_MissingDiagnosisId_BadRequest() throws Exception {
-        SymptomRequest request = new SymptomRequest(null, Set.of(Symptoms.ITCHINESS));
+        SymptomRequest request = new SymptomRequest(null, Set.of(Symptoms.FEVER));
         mockMvc.perform(post("/api/v1/diagnosis/symptom")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -85,7 +85,7 @@ class SymptomControllerTest {
     @DisplayName("증상 제출 실패 - 서비스에서 SymptomException 발생 시 400 또는 500 반환")
     void submitSymptom_ServiceThrowsSymptomException_ErrorResponse() throws Exception {
         String diagnosisId = "test-diagnosis-id";
-        Set<Symptoms> symptoms = Set.of(Symptoms.ITCHINESS);
+        Set<Symptoms> symptoms = Set.of(Symptoms.FEVER);
         SymptomRequest request = new SymptomRequest(diagnosisId, symptoms);
         doThrow(new SymptomException("SYMPTOM_SAVE_ERROR", "증상 저장 오류"))
                 .when(symptomService).saveSymptomsToRedis(diagnosisId, symptoms);
