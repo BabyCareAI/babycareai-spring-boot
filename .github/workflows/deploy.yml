@@ -3,7 +3,7 @@ name: Deploy To EC2
 on:
   push:
     branches:
-      - release/53-v0.4.0
+      - release/57-v0.4.1
 
 jobs:
   deploy:
