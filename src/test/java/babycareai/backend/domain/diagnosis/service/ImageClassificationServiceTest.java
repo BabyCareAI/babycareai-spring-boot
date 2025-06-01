@@ -126,7 +126,7 @@ class ImageClassificationServiceTest {
         verify(valueOperations).set(
                 eq("classification:" + diagnosisId),
                 eq(expectedRedisValue),
-                eq(Duration.ofMinutes(30))
+                eq(Duration.ofHours(48))
         );
     }
 

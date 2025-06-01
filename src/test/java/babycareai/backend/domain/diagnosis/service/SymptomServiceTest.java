@@ -60,7 +60,7 @@ class SymptomServiceTest {
         verify(valueOperations).set(
                 eq("symptoms:" + diagnosisId),
                 eq(expectedValue),
-                eq(Duration.ofMinutes(30))
+                eq(Duration.ofHours(48))
         );
     }
 
