@@ -18,7 +18,7 @@ import java.util.Set;
 public class SymptomService {
 
     private static final String REDIS_KEY_PREFIX = "symptoms:";
-    private static final Duration REDIS_EXPIRATION = Duration.ofMinutes(30);
+    private static final Duration REDIS_EXPIRATION = Duration.ofHours(48);
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;

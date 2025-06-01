@@ -166,6 +166,6 @@ public class ImageClassificationService {
     private void saveClassificationToRedis(String diagnosisId, String bodyPart, String classificationResult) {
         String redisKey = "classification:" + diagnosisId;
         String value = String.format("{\"result\":%s,\"bodyPart\":\"%s\"}", classificationResult, bodyPart);
-        redisTemplate.opsForValue().set(redisKey, value, Duration.ofMinutes(30));
+        redisTemplate.opsForValue().set(redisKey, value, Duration.ofHours(48));
     }
 }
