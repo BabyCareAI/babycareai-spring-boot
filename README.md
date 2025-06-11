@@ -6,6 +6,7 @@ README.md 작성중
 deepwiki 문서: https://deepwiki.com/BabyCareAI/babycareai-spring-boot
 
 ## 프로젝트 구조
+
 ```
 📦 
 ├─ .github
