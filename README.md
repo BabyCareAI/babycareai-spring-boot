@@ -50,6 +50,10 @@ cd babycareai-spring-boot
 http://localhost:8080/swagger-ui/index.html
 ```
 
+## 📖 API 문서  
+  
+- **Swagger UI**: [https://api.babycareai.net/springboot/swagger-ui/index.html](https://api.babycareai.net/springboot/swagger-ui/index.html)  
+
 ## 📡 API 엔드포인트
 
 ### 진단 워크플로우
@@ -109,9 +113,9 @@ curl -X POST "http://localhost:8080/api/v1/diagnosis/symptom" \
 - **Spring Actuator**: 애플리케이션 헬스 체크
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/9e432bfa-83f6-4d78-b45e-c668bde0b50d" />
 
-## 🧪 테스트 커버리지
+<!--## 🧪 테스트 커버리지
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/87cc23d1-fdec-4411-b149-7813acc73681" />
-
+-->
 ## 🚀 배포 자동화 파이프라인
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/583daa95-26cf-439a-b0d5-f81d89fd53a9" />
 
