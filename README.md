@@ -9,7 +9,7 @@
 > [Blog](https://baxdailygit.github.io/projects/Reflections-on-the-Development-Process-of-an-AI-Powered-Infant-and-Toddler-Skin-Disease-Diagnosis-Service) 👈 AI 기반 영유아 피부 질환 진단 서비스 개발 과정을 블로그에 작성하였습니다.  
 > [DeepWiki](https://deepwiki.com/BabyCareAI/babycareai-spring-boot) 👈딥위키를 통해 해당 레포지토리의 궁금한 점을 물어보세요.  
 
-https://github.com/user-attachments/assets/144565e3-6748-400e-b79c-254dbe7c0abe
+https://github.com/user-attachments/assets/831f890b-b3d2-49e8-81b9-368f5b0a3102
 
 ## 📋 프로젝트 개요
 
